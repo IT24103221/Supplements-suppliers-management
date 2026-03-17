@@ -23,6 +23,14 @@ const supplierSchema = new mongoose.Schema({
     supplimentBrand: {
         type: String
     },
+    photoUrl: {
+        type: String,
+        default: ""
+    },
+    photoPublicId: {
+        type: String,
+        default: ""
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const upload = require("../middleware/upload");
 
 //Insert Model
 const supplierModel = require("../Models/supplierModel");
@@ -7,9 +8,9 @@ const supplierModel = require("../Models/supplierModel");
 const supplierContraller = require("../Controllers/supplierContrallers");
 
 router.get("/", supplierContraller.getAllSuppliers);
-router.post("/", supplierContraller.addSupplier);
+router.post("/", upload.single("photo"), supplierContraller.addSupplier);
 router.get("/:id", supplierContraller.getById);
-router.put("/:id", supplierContraller.updateSupplier);
+router.put("/:id", upload.single("photo"), supplierContraller.updateSupplier);
 router.delete("/:id", supplierContraller.deleteSupplier);
 
 //Export router

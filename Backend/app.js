@@ -1,5 +1,7 @@
 //pass = 094FWjs6CLyh2fO7
 
+require("dotenv").config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const routes = require("./Routes/supplierRoutes");

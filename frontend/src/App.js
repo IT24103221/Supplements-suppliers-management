@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AddSuppliers from "./components/AddSuppliers/addsuppliers.js";
 import SuppliersDetails from "./components/SuppliersDetails/suppliersdetails.js";
 import UpdateSuppliers from "./components/UpdateSuppliers/updatesuppliers.js";
+import SupplierProfile from "./components/SupplierProfile/supplierprofile.js";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/mainhome" element={<Home />} />
         <Route path="/addsuppliers" element={<AddSuppliers />} />
         <Route path="/suppliersdetails" element={<SuppliersDetails />} />
+        <Route path="/supplier/:id" element={<SupplierProfile />} />
         <Route path="/updatesuppliers/:id" element={<UpdateSuppliers />} />
       </Routes>
     </BrowserRouter>
