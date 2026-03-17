@@ -1,0 +1,56 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Nav Container */
+.home-ul {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  list-style: none;
+  background-color: #1a1a2e;
+  padding: 0 30px;
+  gap: 10px;
+  height: 70px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Nav Items */
+.home-1l {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.home-1l:hover {
+  background-color: #16213e;
+  transform: translateY(-2px);
+}
+
+/* Nav Text */
+.home-1l h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e0e0e0;
+  text-transform: capitalize;
+  letter-spacing: 1px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  white-space: nowrap;
+}
+
+.home-1l:hover h1 {
+  color: #e94560;
+}
+
+/* Active state (optional - add 'active' class to li) */
+.home-1l.active {
+  background-color: #e94560;
+}
+
+.home-1l.active h1 {
+  color: #ffffff;
+}
