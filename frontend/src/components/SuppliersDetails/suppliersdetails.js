@@ -9,6 +9,7 @@ import autoTable from 'jspdf-autotable';
 
 const URL = "http://localhost:5000/suppliers";
 
+// Centralized fetch function so list refresh logic can reuse it
 const fetchHandler = async () => {
   return await axios.get(URL).then((res) => res.data);
 }
@@ -19,11 +20,13 @@ function SuppliersDetails() {
   const history = useNavigate();
 
   useEffect(() => {
+    // Initial load for supplier catalog/dashboard
     fetchHandler().then((data) => {
       setSuppliers(data.suppliers);
     });
   }, []);
 
+  // Delete supplier then refresh list to keep dashboard counts in sync
   const deleteHandler = async (id) => {
     try {
       await axios.delete(`${URL}/${id}`);
@@ -36,14 +39,42 @@ function SuppliersDetails() {
     }
   }
 
+  // Approve a pending request then refresh the lists
+  const approveHandler = async (id) => {
+    try {
+      await axios.patch(`${URL}/${id}/approve`);
+      fetchHandler().then((data) => setSuppliers(data.suppliers));
+    } catch (error) {
+      console.error("Approve failed:", error);
+      alert("Failed to approve supplier. Please try again.");
+    }
+  };
+
+  const rejectHandler = async (id) => {
+    try {
+      await axios.patch(`${URL}/${id}/reject`);
+      fetchHandler().then((data) => setSuppliers(data.suppliers));
+    } catch (error) {
+      console.error("Reject failed:", error);
+      alert("Failed to reject supplier. Please try again.");
+    }
+  };
+
+  // Search supports all user-visible supplier fields
   const filteredSuppliers = suppliers.filter((supplier) =>
     supplier.name.toLowerCase().includes(search.toLowerCase()) ||
     supplier.email.toLowerCase().includes(search.toLowerCase()) ||
     supplier.phone.toLowerCase().includes(search.toLowerCase()) ||
     supplier.address.toLowerCase().includes(search.toLowerCase()) ||
-    supplier.company.toLowerCase().includes(search.toLowerCase()) ||
-    supplier.supplimentBrand.toLowerCase().includes(search.toLowerCase())
+    (supplier.supplimentCategory || "").toLowerCase().includes(search.toLowerCase()) ||
+    (supplier.supplimentProduct || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  // Split lists by approval status (defensive defaults avoid undefined errors)
+  const approvedSuppliers = filteredSuppliers.filter(
+    (s) => (s.status || "Approved") === "Approved"
+  );
+  const pendingSuppliers = filteredSuppliers.filter((s) => s.status === "Pending");
 
   // ===== PDF REPORT GENERATOR =====
   const generatePDF = () => {
@@ -73,14 +104,14 @@ function SuppliersDetails() {
     doc.setFont('helvetica', 'bold');
     doc.text('Dashboard Summary', 14, 42);
 
-    const uniqueCompanies = [...new Set(suppliers.map((s) => s.company))].length;
-    const uniqueBrands = [...new Set(suppliers.map((s) => s.supplimentBrand))].length;
+    const uniqueCategories = [...new Set(suppliers.map((s) => (s.supplimentCategory || "").trim()).filter(Boolean))].length;
+    const uniqueProducts = [...new Set(suppliers.map((s) => (s.supplimentProduct || "").trim()).filter(Boolean))].length;
     const latestSupplier = suppliers.length > 0 ? suppliers[suppliers.length - 1].name : "N/A";
 
     const summaryData = [
       ['Total Suppliers', suppliers.length],
-      ['Unique Companies', uniqueCompanies],
-      ['Unique Brands', uniqueBrands],
+      ['Total Supplement Categories', uniqueCategories],
+      ['Total Supplement Products', uniqueProducts],
       ['Latest Supplier', latestSupplier],
     ];
 
@@ -116,14 +147,14 @@ function SuppliersDetails() {
 
     autoTable(doc, {
       startY: afterSummary + 4,
-      head: [['Name', 'Email', 'Phone', 'Address', 'Company', 'Brand']],
+      head: [['Name', 'Email', 'Phone', 'Address', 'Category', 'Product']],
       body: suppliers.map((s) => [
         s.name,
         s.email,
         s.phone,
         s.address,
-        s.company,
-        s.supplimentBrand,
+        s.supplimentCategory || "-",
+        s.supplimentProduct || "-",
       ]),
       theme: 'striped',
       headStyles: {
@@ -156,14 +187,14 @@ function SuppliersDetails() {
 
       autoTable(doc, {
         startY: afterAll + 10,
-        head: [['Name', 'Email', 'Phone', 'Address', 'Company', 'Brand']],
+        head: [['Name', 'Email', 'Phone', 'Address', 'Category', 'Product']],
         body: filteredSuppliers.map((s) => [
           s.name,
           s.email,
           s.phone,
           s.address,
-          s.company,
-          s.supplimentBrand,
+          s.supplimentCategory || "-",
+          s.supplimentProduct || "-",
         ]),
         theme: 'striped',
         headStyles: {
@@ -208,7 +239,6 @@ function SuppliersDetails() {
         {/* Title */}
         <div className="title-section">
           <h1>Suppliers Details</h1>
-          <span className="title-total-count">Total Suppliers: {suppliers.length}</span>
         </div>
 
         {/* Mini Dashboard Cards */}
@@ -228,7 +258,7 @@ function SuppliersDetails() {
             </div>
           </div>
 
-          <div className="dash-card card-companies">
+            <div className="dash-card card-companies">
             <div className="dash-card-icon">
               <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
@@ -236,12 +266,12 @@ function SuppliersDetails() {
               </svg>
             </div>
             <div className="dash-card-info">
-              <h3>{[...new Set(suppliers.map((s) => s.company))].length}</h3>
-              <p>Unique Companies</p>
+              <h3>{[...new Set(suppliers.map((s) => (s.supplimentCategory || "").trim()).filter(Boolean))].length}</h3>
+              <p>Total Supplement Categories</p>
             </div>
           </div>
 
-          <div className="dash-card card-brands">
+            <div className="dash-card card-brands">
             <div className="dash-card-icon">
               <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
@@ -249,8 +279,8 @@ function SuppliersDetails() {
               </svg>
             </div>
             <div className="dash-card-info">
-              <h3>{[...new Set(suppliers.map((s) => s.supplimentBrand))].length}</h3>
-              <p>Unique Brands</p>
+              <h3>{[...new Set(suppliers.map((s) => (s.supplimentProduct || "").trim()).filter(Boolean))].length}</h3>
+              <p>Total Supplement Products</p>
             </div>
           </div>
 
@@ -262,7 +292,7 @@ function SuppliersDetails() {
               </svg>
             </div>
             <div className="dash-card-info">
-              <h3 style={{ fontSize: "16px" }}>
+              <h3 className="latest-supplier-name">
                 {suppliers.length > 0 ? suppliers[suppliers.length - 1].name : "N/A"}
               </h3>
               <p>Latest Supplier</p>
@@ -275,7 +305,7 @@ function SuppliersDetails() {
           <input
             type="text"
             className="search-bar"
-            placeholder="Search by name, email, phone, address, company or brand..."
+            placeholder="Search by name, email, phone, address, category or product..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -296,11 +326,12 @@ function SuppliersDetails() {
           </div>
         </div>
 
-        {filteredSuppliers.length === 0 ? (
-          <div className="empty-msg">No suppliers found.</div>
+        {/* Approved suppliers (main list) */}
+        {approvedSuppliers.length === 0 ? (
+          <div className="empty-msg">No approved suppliers found.</div>
         ) : (
           <div className="suppliers-catalog">
-            {filteredSuppliers.map((supplier) => {
+            {approvedSuppliers.map((supplier) => {
               const name = supplier?.name || "";
               const initial = (name.trim()[0] || "?").toUpperCase();
 
@@ -350,15 +381,15 @@ function SuppliersDetails() {
                       </span>
                     </div>
                     <div className="supplier-meta__row">
-                      <span className="supplier-meta__label">Company</span>
+                      <span className="supplier-meta__label">Category</span>
                       <span className="supplier-meta__value">
-                        {supplier.company}
+                        {supplier.supplimentCategory || "-"}
                       </span>
                     </div>
                     <div className="supplier-meta__row">
-                      <span className="supplier-meta__label">Brand</span>
+                      <span className="supplier-meta__label">Product</span>
                       <span className="supplier-meta__value">
-                        {supplier.supplimentBrand}
+                        {supplier.supplimentProduct || "-"}
                       </span>
                     </div>
                   </div>
@@ -393,6 +424,101 @@ function SuppliersDetails() {
             })}
           </div>
         )}
+
+        {/* Pending requests section */}
+        <div className="pending-section">
+          <div className="pending-section__header">
+            <h2>Pending Requests</h2>
+            <span className="pending-section__count">{pendingSuppliers.length}</span>
+          </div>
+
+          {pendingSuppliers.length === 0 ? (
+            <div className="pending-section__empty">No pending requests.</div>
+          ) : (
+            <div className="suppliers-catalog pending-catalog">
+              {pendingSuppliers.map((supplier) => {
+                const name = supplier?.name || "";
+                const initial = (name.trim()[0] || "?").toUpperCase();
+
+                return (
+                  <div
+                    key={supplier._id}
+                    className="supplier-card supplier-card--pending"
+                    onClick={() => history(`/supplier/${supplier._id}`)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        history(`/supplier/${supplier._id}`);
+                      }
+                    }}
+                    title="Click to view supplier details"
+                  >
+                    <div className="supplier-card__top">
+                      <div className="supplier-avatar">
+                        {supplier.photoUrl ? (
+                          <img src={supplier.photoUrl} alt={`${name} avatar`} />
+                        ) : (
+                          <span className="supplier-avatar__initial">{initial}</span>
+                        )}
+                      </div>
+
+                      <div className="supplier-card__title">
+                        <div className="supplier-card__name">{supplier.name}</div>
+                        <div className="supplier-card__id">{supplier._id}</div>
+                        <div className="pending-badge">Pending</div>
+                      </div>
+                    </div>
+
+                    <div className="supplier-card__meta">
+                      <div className="supplier-meta__row">
+                        <span className="supplier-meta__label">Email</span>
+                        <span className="supplier-meta__value">{supplier.email}</span>
+                      </div>
+                      <div className="supplier-meta__row">
+                        <span className="supplier-meta__label">Phone</span>
+                        <span className="supplier-meta__value">{supplier.phone}</span>
+                      </div>
+                      <div className="supplier-meta__row">
+                        <span className="supplier-meta__label">Category</span>
+                        <span className="supplier-meta__value">{supplier.supplimentCategory || "-"}</span>
+                      </div>
+                      <div className="supplier-meta__row">
+                        <span className="supplier-meta__label">Product</span>
+                        <span className="supplier-meta__value">{supplier.supplimentProduct || "-"}</span>
+                      </div>
+                    </div>
+
+                    <div className="supplier-card__actions">
+                      <button
+                        className="btn-approve"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          approveHandler(supplier._id);
+                        }}
+                      >
+                        Approve
+                      </button>
+
+                      <button
+                        className="btn-reject"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          rejectHandler(supplier._id);
+                        }}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
       </div>
     </div>

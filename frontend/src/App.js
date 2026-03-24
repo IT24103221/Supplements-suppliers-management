@@ -6,6 +6,7 @@ import AddSuppliers from "./components/AddSuppliers/addsuppliers.js";
 import SuppliersDetails from "./components/SuppliersDetails/suppliersdetails.js";
 import UpdateSuppliers from "./components/UpdateSuppliers/updatesuppliers.js";
 import SupplierProfile from "./components/SupplierProfile/supplierprofile.js";
+import SupplierRegister from "./components/SupplierRegister/supplierregister.js";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/mainhome" element={<Home />} />
         <Route path="/addsuppliers" element={<AddSuppliers />} />
+        <Route path="/supplier-register" element={<SupplierRegister />} />
         <Route path="/suppliersdetails" element={<SuppliersDetails />} />
         <Route path="/supplier/:id" element={<SupplierProfile />} />
         <Route path="/updatesuppliers/:id" element={<UpdateSuppliers />} />

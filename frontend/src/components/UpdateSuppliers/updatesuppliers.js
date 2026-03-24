@@ -6,6 +6,13 @@ import Nav from '../Nav/Nav';
 import './updatesuppliers.css';
 
 const SUPPLIERS_URL = "http://localhost:5000/suppliers";
+const SUPPLIMENT_PRODUCTS = {
+  Vitamins: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D", "Vitamin E", "Vitamin K"],
+  Proteins: ["Whey Protein", "Casein Protein", "Soy Protein", "Pea Protein"],
+  Minerals: ["Calcium", "Magnesium", "Zinc", "Iron", "Potassium"],
+  Herbs: ["Ashwagandha", "Turmeric", "Ginger", "Ginseng"],
+  Other: ["Fish Oil", "Probiotics", "Collagen", "Melatonin", "Creatine"],
+};
 
 function UpdateSuppliers() {
   const { id } = useParams();
@@ -15,8 +22,8 @@ function UpdateSuppliers() {
     email: "",
     phone: "",
     address: "",
-    company: "",
-    supplimentBrand: ""
+    supplimentCategory: "",
+    supplimentProduct: "",
   });
 
   const [photoFile, setPhotoFile] = useState(null);
@@ -60,16 +67,12 @@ function UpdateSuppliers() {
       newErrors.address = "Address is required.";
     }
 
-    // Company validation
-    if (!input.company.trim()) {
-      newErrors.company = "Company is required.";
-    } else if (!/^[a-zA-Z\s]+$/.test(input.company)) {
-      newErrors.company = "Company can only contain letters.";
+    if (!input.supplimentCategory) {
+      newErrors.supplimentCategory = "Please select a category.";
     }
 
-    // Suppliment Brand validation
-    if (!input.supplimentBrand.trim()) {
-      newErrors.supplimentBrand = "Suppliment Brand is required.";
+    if (!input.supplimentProduct) {
+      newErrors.supplimentProduct = "Please select a product.";
     }
 
     // Photo validation (optional, but if selected must be an image)
@@ -94,9 +97,23 @@ function UpdateSuppliers() {
       value = value.replace(/\D/g, "").slice(0, 10);
     }
 
-    // Allow only letters and spaces for name and company
-    if (e.target.name === "name" || e.target.name === "company") {
+    // Allow only letters and spaces for name
+    if (e.target.name === "name") {
       value = value.replace(/[^a-zA-Z\s]/g, "");
+    }
+
+    if (e.target.name === "supplimentCategory") {
+      setInput((prev) => ({
+        ...prev,
+        supplimentCategory: value,
+        supplimentProduct: "",
+      }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        supplimentCategory: "",
+        supplimentProduct: "",
+      }));
+      return;
     }
 
     setInput((prev) => ({
@@ -139,8 +156,8 @@ function UpdateSuppliers() {
     formData.append("email", String(input.email));
     formData.append("phone", String(input.phone));
     formData.append("address", String(input.address));
-    formData.append("company", String(input.company));
-    formData.append("supplimentBrand", String(input.supplimentBrand));
+    formData.append("supplimentCategory", String(input.supplimentCategory));
+    formData.append("supplimentProduct", String(input.supplimentProduct));
     if (photoFile) formData.append("photo", photoFile);
 
     await axios
@@ -201,25 +218,41 @@ function UpdateSuppliers() {
           />
           {errors.address && <p className="error-msg">{errors.address}</p>}
 
-          <label>Company:</label>
-          <input
-            type="text"
-            name="company"
-            value={input.company}
+          <label>Suppliment Category:</label>
+          <select
+            name="supplimentCategory"
+            value={input.supplimentCategory}
             onChange={handleChange}
-            placeholder="Enter company name"
-          />
-          {errors.company && <p className="error-msg">{errors.company}</p>}
+            className="select-input"
+          >
+            <option value="">-- Select Category --</option>
+            {Object.keys(SUPPLIMENT_PRODUCTS).map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+          {errors.supplimentCategory && <p className="error-msg">{errors.supplimentCategory}</p>}
 
-          <label>Suppliment Brand:</label>
-          <input
-            type="text"
-            name="supplimentBrand"
-            value={input.supplimentBrand}
-            onChange={handleChange}
-            placeholder="Enter suppliment brand"
-          />
-          {errors.supplimentBrand && <p className="error-msg">{errors.supplimentBrand}</p>}
+          {input.supplimentCategory && (
+            <>
+              <label>Suppliment Product:</label>
+              <select
+                name="supplimentProduct"
+                value={input.supplimentProduct}
+                onChange={handleChange}
+                className="select-input"
+              >
+                <option value="">-- Select Product --</option>
+                {SUPPLIMENT_PRODUCTS[input.supplimentCategory]?.map((product) => (
+                  <option key={product} value={product}>
+                    {product}
+                  </option>
+                ))}
+              </select>
+              {errors.supplimentProduct && <p className="error-msg">{errors.supplimentProduct}</p>}
+            </>
+          )}
 
           <label>Photo (optional):</label>
           <input

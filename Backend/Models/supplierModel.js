@@ -17,11 +17,18 @@ const supplierSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    company: {
-        type: String
+    supplimentCategory: {
+        type: String,
+        required: true
     },
-    supplimentBrand: {
-        type: String
+    supplimentProduct: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ["Pending", "Approved"],
+        default: "Pending"
     },
     photoUrl: {
         type: String,

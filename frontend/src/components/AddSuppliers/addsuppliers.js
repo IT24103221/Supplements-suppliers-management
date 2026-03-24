@@ -4,6 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './addsuppliers.css';
 
+// ✅ Suppliment Products List
+const SUPPLIMENT_PRODUCTS = {
+  "Vitamins": ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D", "Vitamin E", "Vitamin K"],
+  "Proteins": ["Whey Protein", "Casein Protein", "Soy Protein", "Pea Protein"],
+  "Minerals": ["Calcium", "Magnesium", "Zinc", "Iron", "Potassium"],
+  "Herbs": ["Ashwagandha", "Turmeric", "Ginger", "Ginseng"],
+  "Other": ["Fish Oil", "Probiotics", "Collagen", "Melatonin", "Creatine"]
+};
+
 function AddSuppliers() {  
   const history = useNavigate();
   const [input, setInput] = React.useState({
@@ -11,8 +20,8 @@ function AddSuppliers() {
     email: "",
     phone: "",
     address: "",
-    company: "",
-    supplimentBrand: ""
+    supplimentCategory: "",
+    supplimentProduct: ""
   });
 
   const [photoFile, setPhotoFile] = React.useState(null);
@@ -22,21 +31,18 @@ function AddSuppliers() {
   const validate = () => {
     let newErrors = {};
 
-    // Name validation
     if (!input.name.trim()) {
       newErrors.name = "Name is required.";
     } else if (!/^[a-zA-Z\s]+$/.test(input.name)) {
       newErrors.name = "Name can only contain letters.";
     }
 
-    // Email validation
     if (!input.email.trim()) {
       newErrors.email = "Email is required.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) {
       newErrors.email = "Enter a valid email address.";
     }
 
-    // Phone validation
     if (!input.phone.trim()) {
       newErrors.phone = "Phone is required.";
     } else if (input.phone.length < 10) {
@@ -45,24 +51,19 @@ function AddSuppliers() {
       newErrors.phone = "Phone number cannot exceed 10 digits.";
     }
 
-    // Address validation
     if (!input.address.trim()) {
       newErrors.address = "Address is required.";
     }
 
-    // Company validation
-    if (!input.company.trim()) {
-      newErrors.company = "Company is required.";
-    } else if (!/^[a-zA-Z\s]+$/.test(input.company)) {
-      newErrors.company = "Company can only contain letters.";
+    // ✅ Category & Product validation
+    if (!input.supplimentCategory) {
+      newErrors.supplimentCategory = "Please select a category.";
     }
 
-    // Suppliment Brand validation
-    if (!input.supplimentBrand.trim()) {
-      newErrors.supplimentBrand = "Suppliment Brand is required.";
+    if (!input.supplimentProduct) {
+      newErrors.supplimentProduct = "Please select a product.";
     }
 
-    // Photo validation (optional, but if selected must be an image)
     if (photoFile) {
       const allowed = ["image/jpeg", "image/png", "image/webp"];
       if (!allowed.includes(photoFile.type)) {
@@ -79,14 +80,27 @@ function AddSuppliers() {
   const handlechange = (e) => {
     let value = e.target.value;
 
-    // Allow only digits for phone field and limit to 10
     if (e.target.name === "phone") {
       value = value.replace(/\D/g, "").slice(0, 10);
     }
 
-    // Allow only letters and spaces for name and company
-    if (e.target.name === "name" || e.target.name === "company") {
+    if (e.target.name === "name") {
       value = value.replace(/[^a-zA-Z\s]/g, "");
+    }
+
+    // ✅ Category change වෙලාම product reset කරනවා
+    if (e.target.name === "supplimentCategory") {
+      setInput((prevState) => ({
+        ...prevState,
+        supplimentCategory: value,
+        supplimentProduct: ""
+      }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        supplimentCategory: "",
+        supplimentProduct: ""
+      }));
+      return;
     }
 
     setInput((prevState) => ({
@@ -94,7 +108,6 @@ function AddSuppliers() {
       [e.target.name]: value
     }));
 
-    // Clear error on change
     setErrors((prevErrors) => ({
       ...prevErrors,
       [e.target.name]: ""
@@ -108,11 +121,9 @@ function AddSuppliers() {
       setPhotoPreviewUrl("");
       return;
     }
-
     setPhotoFile(file);
     const url = window.URL.createObjectURL(file);
     setPhotoPreviewUrl(url);
-
     setErrors((prev) => ({ ...prev, photo: "" }));
   };
 
@@ -134,12 +145,12 @@ function AddSuppliers() {
     formData.append("email", String(input.email));
     formData.append("phone", String(input.phone));
     formData.append("address", String(input.address));
-    formData.append("company", String(input.company));
-    formData.append("supplimentBrand", String(input.supplimentBrand));
+    formData.append("supplimentCategory", String(input.supplimentCategory));
+    formData.append("supplimentProduct", String(input.supplimentProduct));
     if (photoFile) formData.append("photo", photoFile);
 
     await axios
-      .post("http://localhost:5000/suppliers", formData, {
+      .post("http://localhost:5000/suppliers/admin", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((res) => res.data);
@@ -153,85 +164,54 @@ function AddSuppliers() {
         <form onSubmit={handleSubmit}>
 
           <label>Name:</label>
-          <input 
-            type="text" 
-            name='name' 
-            onChange={handlechange} 
-            value={input.name}
-            placeholder="Enter supplier name"
-          />
+          <input type="text" name='name' onChange={handlechange} value={input.name} placeholder="Enter supplier name" />
           {errors.name && <p className="error-msg">{errors.name}</p>}
 
           <label>Email:</label>
-          <input 
-            type="email" 
-            name='email' 
-            value={input.email} 
-            onChange={handlechange}
-            placeholder="Enter email address"
-          />
+          <input type="email" name='email' value={input.email} onChange={handlechange} placeholder="Enter email address" />
           {errors.email && <p className="error-msg">{errors.email}</p>}
 
           <label>Phone:</label>
-          <input 
-            type="text" 
-            name='phone' 
-            value={input.phone} 
-            onChange={handlechange}
-            maxLength={10}
-            placeholder="Enter 10 digit phone number"
-          />
+          <input type="text" name='phone' value={input.phone} onChange={handlechange} maxLength={10} placeholder="Enter 10 digit phone number" />
           {errors.phone && <p className="error-msg">{errors.phone}</p>}
 
           <label>Address:</label>
-          <input 
-            type="text" 
-            name='address' 
-            value={input.address} 
-            onChange={handlechange}
-            placeholder="Enter address"
-          />
+          <input type="text" name='address' value={input.address} onChange={handlechange} placeholder="Enter address" />
           {errors.address && <p className="error-msg">{errors.address}</p>}
 
-          <label>Company:</label>
-          <input 
-            type="text" 
-            name='company' 
-            value={input.company} 
-            onChange={handlechange}
-            placeholder="Enter company name"
-          />
-          {errors.company && <p className="error-msg">{errors.company}</p>}
+          {/* Category Dropdown */}
+          <label>Suppliment Category:</label>
+          <select name="supplimentCategory" value={input.supplimentCategory} onChange={handlechange} className="select-input">
+            <option value="">-- Select Category --</option>
+            {Object.keys(SUPPLIMENT_PRODUCTS).map((category) => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+          {errors.supplimentCategory && <p className="error-msg">{errors.supplimentCategory}</p>}
 
-          <label>Suppliment Brand:</label>
-          <input 
-            type="text" 
-            name='supplimentBrand' 
-            value={input.supplimentBrand} 
-            onChange={handlechange}
-            placeholder="Enter suppliment brand"
-          />
-          {errors.supplimentBrand && <p className="error-msg">{errors.supplimentBrand}</p>}
+          {/*Product Dropdown - Category selected */}
+          {input.supplimentCategory && (
+            <>
+              <label>Suppliment Product:</label>
+              <select name="supplimentProduct" value={input.supplimentProduct} onChange={handlechange} className="select-input">
+                <option value="">-- Select Product --</option>
+                {SUPPLIMENT_PRODUCTS[input.supplimentCategory].map((product) => (
+                  <option key={product} value={product}>{product}</option>
+                ))}
+              </select>
+              {errors.supplimentProduct && <p className="error-msg">{errors.supplimentProduct}</p>}
+            </>
+          )}
 
           <label>Photo (optional):</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-          />
+          <input type="file" accept="image/*" onChange={handlePhotoChange} />
           {errors.photo && <p className="error-msg">{errors.photo}</p>}
           {photoPreviewUrl && (
-            <div style={{ marginTop: "6px" }}>
+            <div className="photo-preview-wrapper">
               <img
                 src={photoPreviewUrl}
                 alt="Selected supplier"
-                style={{
-                  width: "100%",
-                  maxHeight: "220px",
-                  objectFit: "cover",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(2, 6, 23, 0.12)",
-                }}
+                className="photo-preview-image"
               />
             </div>
           )}

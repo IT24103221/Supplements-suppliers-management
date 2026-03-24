@@ -16,6 +16,13 @@ function uploadBufferToCloudinary(buffer, options) {
 const getAllSuppliers = async (req, res) => {
     //get all suppliers
     try {
+        // TEMP FIX (pre-status suppliers): prevent old suppliers from disappearing
+        // Any supplier that has no status set will be treated as already Approved.
+        await supplier.updateMany(
+            { $or: [{ status: { $exists: false } }, { status: null }, { status: "" }] },
+            { $set: { status: "Approved" } }
+        );
+
         const suppliers = await supplier.find();
         //not found
         if (!suppliers || suppliers.length === 0) {
@@ -31,9 +38,8 @@ const getAllSuppliers = async (req, res) => {
 
 
 //data Insert
-const addSupplier = async (req, res) => {
-
-    const { name, email, phone, address, company, supplimentBrand } = req.body;
+const createSupplierWithStatus = async (req, res, status) => {
+    const { name, email, phone, address, supplimentCategory, supplimentProduct } = req.body;
 
     try {
         let photoUrl = "";
@@ -48,13 +54,34 @@ const addSupplier = async (req, res) => {
             photoPublicId = uploaded.public_id || "";
         }
 
-        const newSupplier = new supplier({ name, email, phone, address, company, supplimentBrand, photoUrl, photoPublicId });
+        const newSupplier = new supplier({
+            name,
+            email,
+            phone,
+            address,
+            supplimentCategory,
+            supplimentProduct,
+            status,
+            photoUrl,
+            photoPublicId
+        });
+
         await newSupplier.save();
         return res.status(200).json({ supplier: newSupplier });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: "Unable to add supplier", error: err.message });
     }
+};
+
+// Admin creates supplier: immediately Approved
+const addSupplier = async (req, res) => {
+    return await createSupplierWithStatus(req, res, "Approved");
+};
+
+// Supplier self-register: Pending until admin approval
+const registerSupplier = async (req, res) => {
+    return await createSupplierWithStatus(req, res, "Pending");
 };
 
 //Get by ID
@@ -74,13 +101,19 @@ const getById = async (req, res, next) => {
         return res.status(404).json({ message: "No supplier found" });
     }
 
+    // TEMP FIX: if a single supplier is missing status, assume it was Approved
+    if (!foundSupplier.status) {
+        foundSupplier.status = "Approved";
+        await foundSupplier.save();
+    }
+
     return res.status(200).json({ supplier: foundSupplier });
 };
 
 //Update supplier details
 const updateSupplier = async (req, res) => {
     const id = req.params.id;
-    const { name, email, phone, address, company, supplimentBrand } = req.body;
+    const { name, email, phone, address, supplimentCategory, supplimentProduct } = req.body;
 
     let updatedSupplier;
     try {
@@ -119,8 +152,8 @@ const updateSupplier = async (req, res) => {
         existing.email = email;
         existing.phone = phone;
         existing.address = address;
-        existing.company = company;
-        existing.supplimentBrand = supplimentBrand;
+        existing.supplimentCategory = supplimentCategory;
+        existing.supplimentProduct = supplimentProduct;
         existing.photoUrl = photoUrl;
         existing.photoPublicId = photoPublicId;
 
@@ -153,9 +186,67 @@ const deleteSupplier = async (req, res) => {
     return res.status(200).json({ message: "Supplier deleted successfully", supplier: deletedSupplier });
 }
 
+// Approve a pending supplier request (status -> Approved)
+const approveSupplier = async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const updated = await supplier.findByIdAndUpdate(
+            id,
+            { status: "Approved" },
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: "Supplier not found" });
+        }
+
+        return res.status(200).json({ supplier: updated });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+// Reject a pending supplier request:
+// - only allowed for Pending suppliers
+// - deletes the DB record
+// - deletes Cloudinary image if present
+const rejectSupplier = async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const existing = await supplier.findById(id);
+        if (!existing) {
+            return res.status(404).json({ message: "Supplier not found" });
+        }
+
+        if (existing.status !== "Pending") {
+            return res.status(400).json({ message: "Only pending suppliers can be rejected" });
+        }
+
+        if (existing.photoPublicId) {
+            try {
+                await cloudinary.uploader.destroy(existing.photoPublicId, { resource_type: "image" });
+            } catch (e) {
+                console.log("Cloudinary delete failed:", e?.message || e);
+            }
+        }
+
+        await supplier.findByIdAndDelete(id);
+        return res.status(200).json({ message: "Supplier rejected and removed" });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
 exports.getAllSuppliers = getAllSuppliers;
 exports.addSupplier = addSupplier;
+exports.registerSupplier = registerSupplier;
 exports.getById = getById;
 exports.updateSupplier = updateSupplier;
 exports.deleteSupplier = deleteSupplier;
- 
+exports.approveSupplier = approveSupplier;
+exports.rejectSupplier = rejectSupplier;
+  

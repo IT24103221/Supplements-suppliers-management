@@ -3,32 +3,37 @@ const Schema = mongoose.Schema;
 
 const supplierSchema = new Schema({
     name: {
-        type: String,//data type
-        required: true,//validation
+        type: String,
+        required: true,
     },
     email: {
-        type: String,  //data type
-        required: true,//validation
+        type: String,
+        required: true,
     },
     phone: {
-        type: Number,//data type
-        required: true,//validation
+        type: String,      // ✅ Number වෙනුවට String - phone numbers leading zeros support
+        required: true,
     },
     address: {
-        type: String,//data type
-        required: true,//validation
+        type: String,
+        required: true,
     },
-    company: {
-        type: String,//data type
-        required: true,//validation
+    supplimentCategory: {   // ✅ New
+        type: String,
+        required: true,
     },
-    supplimentBrand:{
-        type: String,//data type
-        required: true,//validation
+    supplimentProduct: {    // ✅ New
+        type: String,
+        required: true,
+    },
+    photoUrl: {             // ✅ New
+        type: String,
+        default: "",
+    },
+    photoPublicId: {        // ✅ New
+        type: String,
+        default: "",
     },
 });
 
-module.exports = mongoose.model(
-    "supplierModel",//file name
-    supplierSchema //schema name
-);
+module.exports = mongoose.model("supplierModel", supplierSchema);
