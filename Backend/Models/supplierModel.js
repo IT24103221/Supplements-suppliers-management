@@ -25,6 +25,15 @@ const supplierSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    // Tracks which supplier created this supplement request.
+    // In this app, each request is stored as a Supplier document,
+    // so we default supplierId to the document id.
+    supplierId: {
+        type: String,
+        default: function () {
+            return this._id?.toString();
+        }
+    },
     status: {
         type: String,
         enum: ["Pending", "Approved"],

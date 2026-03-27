@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import Nav from "../Nav/Nav";
 import "./supplierregister.css";
 
@@ -103,12 +104,21 @@ function SupplierRegister() {
     formData.append("supplimentProduct", String(input.supplimentProduct));
     if (photoFile) formData.append("photo", photoFile);
 
-    await axios.post("http://localhost:5000/suppliers/register", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    try {
+      await axios.post("http://localhost:5000/suppliers/register", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    alert("Registration submitted. Waiting for admin approval.");
-    navigate("/mainhome");
+      toast.success(
+        "Registration submitted. Waiting for admin approval."
+      );
+      navigate("/mainhome");
+    } catch (e) {
+      toast.error(
+        e?.response?.data?.message ||
+          "Failed to submit registration. Please try again."
+      );
+    }
   };
 
   return (

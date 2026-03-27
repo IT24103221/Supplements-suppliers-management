@@ -11,7 +11,7 @@ const supplierSchema = new Schema({
         required: true,
     },
     phone: {
-        type: String,      // ✅ Number වෙනුවට String - phone numbers leading zeros support
+        type: String,      // ✅ Number / String - phone numbers leading zeros support
         required: true,
     },
     address: {

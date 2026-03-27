@@ -8,6 +8,8 @@ const supplierModel = require("../Models/supplierModel");
 const supplierContraller = require("../Controllers/supplierContrallers");
 
 router.get("/", supplierContraller.getAllSuppliers);
+// Admin: fetch all Pending supplements
+router.get("/pending", supplierContraller.getPendingSuppliers);
 // Admin add supplier (auto Approved)
 router.post("/", upload.single("photo"), supplierContraller.addSupplier);
 router.post("/admin", upload.single("photo"), supplierContraller.addSupplier);
@@ -16,6 +18,8 @@ router.post("/register", upload.single("photo"), supplierContraller.registerSupp
 router.get("/:id", supplierContraller.getById);
 router.put("/:id", upload.single("photo"), supplierContraller.updateSupplier);
 router.patch("/:id/approve", supplierContraller.approveSupplier);
+// Admin: approve a pending request (Pending -> Approved)
+router.patch("/approve/:id", supplierContraller.approveSupplier);
 router.patch("/:id/reject", supplierContraller.rejectSupplier);
 router.delete("/:id", supplierContraller.deleteSupplier);
 

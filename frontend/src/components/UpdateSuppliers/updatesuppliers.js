@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../Nav/Nav';
+import toast from 'react-hot-toast';
 import './updatesuppliers.css';
 
 const SUPPLIERS_URL = "http://localhost:5000/suppliers";
@@ -160,14 +161,17 @@ function UpdateSuppliers() {
     formData.append("supplimentProduct", String(input.supplimentProduct));
     if (photoFile) formData.append("photo", photoFile);
 
-    await axios
-      .put(`${SUPPLIERS_URL}/${id}`, formData, {
+    try {
+      await axios.put(`${SUPPLIERS_URL}/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then(() => {
-        alert("Supplier Updated Successfully!");
-        navigate("/suppliersdetails");
       });
+      toast.success("Supplier Updated Successfully!");
+      navigate("/suppliersdetails");
+    } catch (e) {
+      toast.error(
+        e?.response?.data?.message || "Failed to update supplier. Please try again."
+      );
+    }
   };
 
   return (

@@ -11,6 +11,13 @@ function uploadBufferToCloudinary(buffer, options) {
   });
 }
 
+function requireAdmin(req, res) {
+  // This project currently has no auth/roles.
+  // For this workflow we use a lightweight header check.
+  // Frontend admin pages will send: x-user-role: "admin".
+  return req.headers["x-user-role"] === "admin";
+}
+
 //data display
 
 const getAllSuppliers = async (req, res) => {
@@ -39,7 +46,7 @@ const getAllSuppliers = async (req, res) => {
 
 //data Insert
 const createSupplierWithStatus = async (req, res, status) => {
-    const { name, email, phone, address, supplimentCategory, supplimentProduct } = req.body;
+    const { name, email, phone, address, supplimentCategory, supplimentProduct, supplierId } = req.body;
 
     try {
         let photoUrl = "";
@@ -62,6 +69,8 @@ const createSupplierWithStatus = async (req, res, status) => {
             supplimentCategory,
             supplimentProduct,
             status,
+            // If provided, store supplierId explicitly; otherwise the schema default is used.
+            supplierId: supplierId || undefined,
             photoUrl,
             photoPublicId
         });
@@ -191,11 +200,21 @@ const approveSupplier = async (req, res) => {
     const id = req.params.id;
 
     try {
-        const updated = await supplier.findByIdAndUpdate(
-            id,
-            { status: "Approved" },
-            { new: true }
-        );
+        if (!requireAdmin(req, res)) {
+            return res.status(403).json({ message: "Admin access required" });
+        }
+
+        const existing = await supplier.findById(id);
+        if (!existing) {
+            return res.status(404).json({ message: "Supplier not found" });
+        }
+
+        if (existing.status !== "Pending") {
+            return res.status(400).json({ message: "Only pending suppliers can be approved" });
+        }
+
+        existing.status = "Approved";
+        const updated = await existing.save();
 
         if (!updated) {
             return res.status(404).json({ message: "Supplier not found" });
@@ -216,6 +235,10 @@ const rejectSupplier = async (req, res) => {
     const id = req.params.id;
 
     try {
+        if (!requireAdmin(req, res)) {
+            return res.status(403).json({ message: "Admin access required" });
+        }
+
         const existing = await supplier.findById(id);
         if (!existing) {
             return res.status(404).json({ message: "Supplier not found" });
@@ -241,12 +264,29 @@ const rejectSupplier = async (req, res) => {
     }
 };
 
+// Admin: fetch all Pending supplements
+const getPendingSuppliers = async (req, res) => {
+    try {
+        if (!requireAdmin(req, res)) {
+            return res.status(403).json({ message: "Admin access required" });
+        }
+
+        const pending = await supplier.find({ status: "Pending" });
+
+        return res.status(200).json({ suppliers: pending });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
 exports.getAllSuppliers = getAllSuppliers;
 exports.addSupplier = addSupplier;
 exports.registerSupplier = registerSupplier;
 exports.getById = getById;
 exports.updateSupplier = updateSupplier;
 exports.deleteSupplier = deleteSupplier;
+exports.getPendingSuppliers = getPendingSuppliers;
 exports.approveSupplier = approveSupplier;
 exports.rejectSupplier = rejectSupplier;
   

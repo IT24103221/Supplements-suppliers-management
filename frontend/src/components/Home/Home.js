@@ -10,12 +10,15 @@ function Home() {
       <div className="home-container">
         <h1 className="home-title">Welcome</h1>
         <p className="home-subtitle">
-          Supplier registration requests will be reviewed by an admin.
+          Supplement submissions will be reviewed by an admin.
         </p>
 
         <div className="home-actions">
           <Link to="/supplier-register" className="home-btn home-btn--primary">
             Supplier Registration
+          </Link>
+          <Link to="/addsupplements" className="home-btn home-btn--primary">
+            Add Supplements
           </Link>
         </div>
       </div>

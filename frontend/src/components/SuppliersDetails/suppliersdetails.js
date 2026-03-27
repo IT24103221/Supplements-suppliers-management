@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Nav from '../Nav/Nav'
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import './suppliersdetails.css';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -35,28 +36,34 @@ function SuppliersDetails() {
       });
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("Failed to delete supplier. Please try again.");
+      toast.error("Failed to delete supplier. Please try again.");
     }
   }
 
   // Approve a pending request then refresh the lists
   const approveHandler = async (id) => {
     try {
-      await axios.patch(`${URL}/${id}/approve`);
+      await axios.patch(`${URL}/approve/${id}`, {}, {
+        headers: { "x-user-role": "admin" },
+      });
+      toast.success("Supplier approved successfully!");
       fetchHandler().then((data) => setSuppliers(data.suppliers));
     } catch (error) {
       console.error("Approve failed:", error);
-      alert("Failed to approve supplier. Please try again.");
+      toast.error(error?.response?.data?.message || "Failed to approve supplier. Please try again.");
     }
   };
 
   const rejectHandler = async (id) => {
     try {
-      await axios.patch(`${URL}/${id}/reject`);
+      await axios.patch(`${URL}/${id}/reject`, {}, {
+        headers: { "x-user-role": "admin" },
+      });
+      toast.success("Supplier rejected and removed.");
       fetchHandler().then((data) => setSuppliers(data.suppliers));
     } catch (error) {
       console.error("Reject failed:", error);
-      alert("Failed to reject supplier. Please try again.");
+      toast.error(error?.response?.data?.message || "Failed to reject supplier. Please try again.");
     }
   };
 
