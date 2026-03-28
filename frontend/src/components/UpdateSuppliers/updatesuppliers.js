@@ -22,9 +22,7 @@ function UpdateSuppliers() {
     name: "",
     email: "",
     phone: "",
-    address: "",
-    supplimentCategory: "",
-    supplimentProduct: "",
+    address: ""
   });
 
   const [photoFile, setPhotoFile] = useState(null);
@@ -68,14 +66,6 @@ function UpdateSuppliers() {
       newErrors.address = "Address is required.";
     }
 
-    if (!input.supplimentCategory) {
-      newErrors.supplimentCategory = "Please select a category.";
-    }
-
-    if (!input.supplimentProduct) {
-      newErrors.supplimentProduct = "Please select a product.";
-    }
-
     // Photo validation (optional, but if selected must be an image)
     if (photoFile) {
       const allowed = ["image/jpeg", "image/png", "image/webp"];
@@ -101,20 +91,6 @@ function UpdateSuppliers() {
     // Allow only letters and spaces for name
     if (e.target.name === "name") {
       value = value.replace(/[^a-zA-Z\s]/g, "");
-    }
-
-    if (e.target.name === "supplimentCategory") {
-      setInput((prev) => ({
-        ...prev,
-        supplimentCategory: value,
-        supplimentProduct: "",
-      }));
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        supplimentCategory: "",
-        supplimentProduct: "",
-      }));
-      return;
     }
 
     setInput((prev) => ({
@@ -157,8 +133,6 @@ function UpdateSuppliers() {
     formData.append("email", String(input.email));
     formData.append("phone", String(input.phone));
     formData.append("address", String(input.address));
-    formData.append("supplimentCategory", String(input.supplimentCategory));
-    formData.append("supplimentProduct", String(input.supplimentProduct));
     if (photoFile) formData.append("photo", photoFile);
 
     try {
@@ -221,42 +195,6 @@ function UpdateSuppliers() {
             placeholder="Enter address"
           />
           {errors.address && <p className="error-msg">{errors.address}</p>}
-
-          <label>Suppliment Category:</label>
-          <select
-            name="supplimentCategory"
-            value={input.supplimentCategory}
-            onChange={handleChange}
-            className="select-input"
-          >
-            <option value="">-- Select Category --</option>
-            {Object.keys(SUPPLIMENT_PRODUCTS).map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-          {errors.supplimentCategory && <p className="error-msg">{errors.supplimentCategory}</p>}
-
-          {input.supplimentCategory && (
-            <>
-              <label>Suppliment Product:</label>
-              <select
-                name="supplimentProduct"
-                value={input.supplimentProduct}
-                onChange={handleChange}
-                className="select-input"
-              >
-                <option value="">-- Select Product --</option>
-                {SUPPLIMENT_PRODUCTS[input.supplimentCategory]?.map((product) => (
-                  <option key={product} value={product}>
-                    {product}
-                  </option>
-                ))}
-              </select>
-              {errors.supplimentProduct && <p className="error-msg">{errors.supplimentProduct}</p>}
-            </>
-          )}
 
           <label>Photo (optional):</label>
           <input

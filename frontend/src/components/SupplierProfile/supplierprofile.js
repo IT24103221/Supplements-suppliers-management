@@ -47,8 +47,6 @@ function SupplierProfile() {
       { label: "Email", value: supplier.email },
       { label: "Phone", value: supplier.phone },
       { label: "Address", value: supplier.address },
-      { label: "Supplement Category", value: supplier.supplimentCategory || "-" },
-      { label: "Supplement Product", value: supplier.supplimentProduct || "-" },
     ];
   }, [supplier]);
 

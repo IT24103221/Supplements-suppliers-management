@@ -1,174 +1,332 @@
-/* Store catalog styles (reuses suppliersdetails.css variables) */
+/* 
+  =========================================
+  SUPPLEMENTS STORE CATALOG STYLES
+  =========================================
+*/
 
+/* Main store container using a column layout for category sections */
 .store {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
 }
 
+/* Individual category section */
 .store-section {
   background: transparent;
+  margin-bottom: 20px;
 }
 
+/* Category section header with title and item count */
 .store-section__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 8px 0 12px;
+  margin: 12px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(15, 23, 42, 0.05);
 }
 
+/* Section title (Category Name) */
 .store-section__title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 900;
   letter-spacing: -0.01em;
-  color: rgba(15, 23, 42, 0.92);
+  color: rgba(15, 23, 42, 0.95);
 }
 
+/* Badge showing the number of items in a category */
 .store-section__count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 34px;
+  min-width: 38px;
   height: 28px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: 999px;
-  background: rgba(37, 99, 235, 0.08);
-  border: 1px solid rgba(37, 99, 235, 0.18);
-  color: rgba(37, 99, 235, 0.95);
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: rgba(37, 99, 235, 1);
   font-weight: 900;
-  font-size: 13px;
+  font-size: 14px;
 }
 
+/* Summary text below the main title */
+.summary-text {
+  color: #64748b;
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Responsive grid for supplement cards */
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
 }
 
+/* 
+  Supplement Card Styling
+  Features smooth transitions, shadows, and a clean white background.
+*/
 .store-card {
-  background: var(--gms-surface);
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 20px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.10);
-  backdrop-filter: blur(8px);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  min-height: 310px;
 }
 
+/* Hover effect for the card */
 .store-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 18px 34px rgba(2, 6, 23, 0.14);
-  filter: brightness(1.01);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: rgba(37, 99, 235, 0.3);
 }
 
+/* Media area (Product Photo container) */
 .store-card__media {
-  height: 170px;
+  height: 220px;
   width: 100%;
-  background: rgba(15, 23, 42, 0.04);
+  background: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.store-card__media img {
+/* Professional scaling for the product image */
+.store-card__img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
+  object-fit: contain; 
+  padding: 12px;
+  transition: transform 0.5s ease;
 }
 
+/* Image zoom effect on card hover */
+.store-card:hover .store-card__img {
+  transform: scale(1.05);
+}
+
+/* Floating category badge on the image */
+.store-card__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+
+/* Fallback placeholder when no photo is available */
 .store-card__placeholder {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(225, 29, 72, 0.80));
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #1e293b, #e11d48);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 950;
-  font-size: 22px;
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.14);
+  font-weight: 900;
+  font-size: 32px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Main content area of the card */
 .store-card__body {
-  padding: 14px 14px 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-grow: 1;
+}
+
+/* Card title and brand section */
+.store-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Supplement product name */
+.store-card__name {
+  font-weight: 800;
+  font-size: 18px;
+  color: #0f172a;
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* Supplement brand name */
+.store-card__brand {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Structured grid for technical details (Weight, Expiry, etc.) */
+.store-card__details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  background: #f1f5f9;
+  border-radius: 12px;
+}
+
+/* Individual detail item */
+.store-card__detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Label for detail items */
+.detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+/* Value for detail items */
+.detail-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Product description section */
+.store-card__description-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.store-card__name {
-  font-weight: 950;
-  font-size: 15px;
-  color: rgba(15, 23, 42, 0.92);
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Truncated description text */
+.store-card__description-text {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  min-height: 36px;
-}
-
-.store-card__brand {
-  font-size: 13px;
-  color: var(--gms-muted);
-  font-weight: 750;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.store-card__price {
-  margin-top: 6px;
-  font-size: 16px;
-  font-weight: 950;
-  color: rgba(225, 29, 72, 0.95);
-}
-
-.store-card__actions {
-  margin-top: 12px;
+/* Footer with price and action buttons */
+.store-card__footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px dashed #e2e8f0;
   display: flex;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
+/* Price display tag */
+.store-card__price-tag {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+/* Currency symbol */
+.price-currency {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e11d48;
+}
+
+/* Formatted price amount */
+.price-amount {
+  font-size: 24px;
+  font-weight: 800;
+  color: #e11d48;
+}
+
+/* Edit and Delete action buttons container */
+.store-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Common button styling */
 .store-card__btn {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 9px 12px;
-  border-radius: 12px;
-  font-weight: 900;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 700;
   font-size: 13px;
-  border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+  transition: all 0.2s ease;
+  border: none;
 }
 
-.store-card__btn:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.02);
+/* View button variant */
+.store-card__btn--view {
+  background: #f1f5f9;
+  color: #475569;
 }
 
+.store-card__btn--view:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Add to Cart button variant */
+.store-card__btn--cart {
+  background: #2563eb;
+  color: #ffffff;
+  flex: 2; /* Make cart button wider */
+}
+
+.store-card__btn--cart:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+/* Edit button variant */
 .store-card__btn--edit {
-  background: rgba(37, 99, 235, 0.10);
-  border-color: rgba(37, 99, 235, 0.22);
-  color: rgba(37, 99, 235, 0.98);
-  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.10);
+  background: #f8fafc;
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.2);
 }
 
+.store-card__btn--edit:hover {
+  background: rgba(37, 99, 235, 0.05);
+}
+
+/* Delete button variant */
 .store-card__btn--delete {
-  background: rgba(225, 29, 72, 0.08);
-  border-color: rgba(225, 29, 72, 0.24);
-  color: rgba(225, 29, 72, 0.95);
-  box-shadow: 0 10px 18px rgba(225, 29, 72, 0.10);
+  background: #fff1f2;
+  color: #e11d48;
 }
 
+.store-card__btn--delete:hover {
+  background: #ffe4e6;
+}
 
+/* Link reset */
+.store-card__media-link, .store-card__title-link {
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}

@@ -5,6 +5,7 @@ const supplementSchema = new mongoose.Schema({
   supplementBrand: { type: String, required: true },
 
   category: { type: String, required: true },
+  supplementProduct: { type: String, required: true },
 
   price: { type: Number, required: true },
   quantity: { type: Number, required: true },
@@ -13,16 +14,20 @@ const supplementSchema = new mongoose.Schema({
   description: { type: String, default: "" },
 
   // Tracks which supplier created this supplement request.
-  // (Since this app has no auth, we store a string identifier from the request body.)
   supplierId: {
-    type: String,
-    default: "",
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Supplier",
+    required: false,
   },
 
   status: {
     type: String,
-    enum: ["Pending", "Approved"],
+    enum: ["Pending", "Approved", "Rejected"],
     default: "Pending",
+  },
+  rejectionReason: {
+    type: String,
+    default: "",
   },
 
   photoUrl: {

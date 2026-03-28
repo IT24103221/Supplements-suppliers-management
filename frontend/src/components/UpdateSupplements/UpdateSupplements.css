@@ -1,0 +1,220 @@
+
+.update-supplements-container {
+  /* Design Tokens / Variables */
+  --gms-bg: #0b1220;
+  --gms-surface: rgba(255, 255, 255, 0.92);
+  --gms-surface-2: rgba(255, 255, 255, 0.78);
+  --gms-text: #0f172a;
+  --gms-muted: #64748b;
+  --gms-border: rgba(2, 6, 23, 0.12);
+  --gms-accent: #e11d48;
+  --gms-accent-2: #2563eb;
+  --gms-ring: rgba(225, 29, 72, 0.35);
+
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 26px 22px;
+  border-radius: 16px;
+  
+  /* Glassmorphism & Background Effects */
+  background:
+    radial-gradient(1200px 500px at 20% -20%, rgba(225, 29, 72, 0.22), transparent 55%),
+    radial-gradient(900px 420px at 110% 10%, rgba(37, 99, 235, 0.18), transparent 55%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.05), rgba(15, 23, 42, 0.02));
+  box-shadow:
+    0 16px 40px rgba(2, 6, 23, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px);
+}
+
+/* Form Title */
+.update-supplements-container h1 {
+  text-align: center;
+  margin-bottom: 18px;
+  color: var(--gms-text);
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Form Layout */
+.update-supplements-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Label Styling */
+.update-supplements-container label {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--gms-text);
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  margin-top: 6px;
+}
+
+/* Input & Select Common Styling */
+.update-supplements-container input,
+.update-supplements-container .select-input,
+.update-supplements-container .description-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--gms-border);
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  color: var(--gms-text);
+  background: var(--gms-surface);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+/* Focus States for Inputs */
+.update-supplements-container input:focus,
+.update-supplements-container .select-input:focus,
+.update-supplements-container .description-textarea:focus {
+  border-color: rgba(225, 29, 72, 0.65);
+  box-shadow: 0 0 0 4px var(--gms-ring);
+  background: #ffffff;
+}
+
+/* Weight Input Group (Split Value + Unit) */
+.update-supplements-container .weight-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.update-supplements-container .weight-value-input {
+  flex: 2;
+}
+
+.update-supplements-container .weight-unit-select {
+  flex: 1;
+  margin-top: 0 !important;
+}
+
+/* Description Textarea Specifics */
+.update-supplements-container .description-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Error Message Styling */
+.update-supplements-container .error-msg {
+  color: var(--gms-accent);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: -6px;
+  margin-bottom: 2px;
+  padding-left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: fadeIn 0.2s ease;
+}
+
+.update-supplements-container .error-msg::before {
+  content: "⚠";
+  font-size: 11px;
+}
+
+/* Submission Button */
+.update-supplements-container button {
+  width: 100%;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, var(--gms-accent), #fb7185);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  box-shadow: 0 12px 22px rgba(225, 29, 72, 0.25);
+}
+
+.update-supplements-container button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.02);
+  box-shadow: 0 16px 30px rgba(225, 29, 72, 0.32);
+}
+
+/* 
+  Photo Comparison Grid (Used in Update form)
+  Allows users to see current image side-by-side with new selection.
+*/
+.photo-comparison-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.photo-comparison-column {
+  border: 1px solid rgba(2, 6, 23, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.photo-comparison-label {
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+  color: rgba(15, 23, 42, 0.65);
+  text-transform: uppercase;
+}
+
+.photo-comparison-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(2, 6, 23, 0.10);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(225, 29, 72, 0.10));
+  display: grid;
+  place-items: center;
+  margin-top: 10px;
+}
+
+.photo-comparison-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-comparison-avatar span {
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.85);
+  font-size: 18px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 520px) {
+  .update-supplements-container {
+    margin: 18px 12px;
+    padding: 18px 14px;
+  }
+  .update-supplements-container h1 {
+    font-size: 24px;
+  }
+  .photo-comparison-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .update-supplements-container * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

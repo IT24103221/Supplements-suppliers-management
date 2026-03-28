@@ -1,34 +1,39 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Nav.css";
 import axios from "axios";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 
 function Nav() {
-  const { pathname } = useLocation();
-  const isAdmin = useMemo(() => {
-    // This app doesn't have auth/roles; we treat admin pages as
-    // anything except the landing pages and self-registration/add forms.
-    if (pathname === "/" || pathname === "/mainhome") return false;
-    if (pathname === "/supplier-register") return false;
-    if (pathname === "/addsuppliers") return false;
-    if (pathname === "/addsupplements") return false;
-    return true;
-  }, [pathname]);
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { cartCount } = useCart();
 
   const [pendingCount, setPendingCount] = useState(0);
+
+  const isAdmin = user?.role === "admin";
+  const isUser = user?.role === "user";
+  const isSupplier = user?.role === "supplier";
+  const isApprovedSupplier = isSupplier && user?.status === "Approved";
 
   useEffect(() => {
     let alive = true;
 
     async function loadPendingCount() {
       try {
-        const res = await axios.get("http://localhost:5000/supplements/pending", {
-          headers: { "x-user-role": "admin" },
-        });
-        const count = res.data?.supplements?.length ?? 0;
+        const [suppRes, suppliRes] = await Promise.all([
+          axios.get("http://localhost:5000/supplements/pending", {
+            headers: { "x-user-role": "admin" },
+          }),
+          axios.get("http://localhost:5000/suppliers/pending", {
+            headers: { "x-user-role": "admin" },
+          })
+        ]);
+        const count = (suppRes.data?.supplements?.length ?? 0) + (suppliRes.data?.suppliers?.length ?? 0);
         if (alive) setPendingCount(count);
       } catch {
-        // Keep navbar quiet; admin can refresh from the pending page.
+        // Keep navbar quiet
       }
     }
 
@@ -48,49 +53,86 @@ function Nav() {
             <h1>home</h1>
           </Link>
         </li>
-        <li className="home-1l">
-            <Link to="/addsuppliers" className="nav-link">
-          <h1>ADD suppliers</h1>
-          </Link>
-        </li>
-        <li className="home-1l">
-             <Link to="/suppliersdetails" className="nav-link">
-          <h1>suppliers details</h1>
-          </Link>
-        </li>
-        <li className="home-1l">
-          <Link to="/supplementsdetails" className="nav-link">
-            <h1>supplements details</h1>
-          </Link>
-        </li>
+        
+        {/* Auth Specific Links */}
+        {user ? (
+          <>
+            {/* Store link only after login */}
+            <li className="home-1l">
+              <Link to="/supplementsdetails" className="nav-link">
+                <h1>supplements store</h1>
+              </Link>
+            </li>
 
-        {isAdmin && (
-          <li className="home-1l home-bell-li">
-            <Link to="/pending-supplements" className="nav-bell-link" aria-label="Pending supplements">
-              <svg
-                className="nav-bell-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7" />
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-              </svg>
+            {isSupplier && (
+              <li className="home-1l">
+                <Link to={`/supplier-dashboard/${user.id}`} className="nav-link">
+                  <h1>Dashboard</h1>
+                </Link>
+              </li>
+            )}
+            
+            {isAdmin && (
+              <>
+                <li className="home-1l">
+                  <Link to="/suppliersdetails" className="nav-link">
+                    <h1>Manage Suppliers</h1>
+                  </Link>
+                </li>
+                <li className="home-1l">
+                  <Link to="/pending-requests" className="nav-link">
+                    <h1>
+                      Pending Requests
+                      {pendingCount > 0 && <span className="nav-badge">{pendingCount}</span>}
+                    </h1>
+                  </Link>
+                </li>
+              </>
+            )}
 
-              {pendingCount > 0 ? (
-                <span
-                  className="nav-bell-badge"
-                  aria-label={`${pendingCount} pending`}
-                >
-                  {pendingCount}
-                </span>
-              ) : null}
+            <li className="home-1l">
+              <Link to="/cart" className="nav-link">
+                <h1>
+                  Cart
+                  {cartCount > 0 && <span className="nav-badge">{cartCount}</span>}
+                </h1>
+              </Link>
+            </li>
+
+            <li className="home-1l">
+              <button onClick={logout} className="nav-logout-btn">
+                Logout ({user.name})
+              </button>
+            </li>
+          </>
+        ) : (
+          <li className="home-1l">
+            <Link to="/login" className="nav-link">
+              <h1>Login</h1>
             </Link>
           </li>
+        )}
+
+        {/* Global/Public Links (Removed Store from here as it's now in Auth section) */}
+
+        {/* Only Approved Suppliers can see Add Supplement */}
+        {isApprovedSupplier && (
+          <li className="home-1l">
+            <Link to="/addsupplements" className="nav-link">
+              <h1>ADD supplements</h1>
+            </Link>
+          </li>
+        )}
+
+        {/* Public Supplier Actions (Hide if already logged in) */}
+        {!user && (
+          <>
+            <li className="home-1l">
+              <Link to="/supplier-register" className="nav-link">
+                <h1>Supplier Registration</h1>
+              </Link>
+            </li>
+          </>
         )}
       </ul>
     </div>

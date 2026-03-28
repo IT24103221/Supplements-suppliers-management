@@ -11,6 +11,9 @@ router.get("/", supplementContraller.getAllSupplements);
 // Admin: pending supplements
 router.get("/pending", supplementContraller.getPendingSupplements);
 
+// Supplier Dashboard: get owned supplements
+router.get("/supplier/:supplierId", supplementContraller.getSupplementsBySupplier);
+
 // Supplier submits a new supplement request (stored as Pending)
 router.post("/", upload.single("photo"), supplementContraller.addSupplement);
 
@@ -22,6 +25,9 @@ router.put("/:id", upload.single("photo"), supplementContraller.updateSupplement
 
 // Admin approves Pending -> Approved
 router.patch("/approve/:id", supplementContraller.approveSupplement);
+
+// Admin rejects Pending -> Rejected
+router.patch("/reject/:id", supplementContraller.rejectSupplement);
 
 // Delete supplement (also removes Cloudinary photo)
 router.delete("/:id", supplementContraller.deleteSupplement);

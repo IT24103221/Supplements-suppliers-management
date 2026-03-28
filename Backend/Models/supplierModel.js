@@ -19,11 +19,7 @@ const supplierSchema = new mongoose.Schema({
     },
     supplimentCategory: {
         type: String,
-        required: true
-    },
-    supplimentProduct: {
-        type: String,
-        required: true
+        required: false
     },
     // Tracks which supplier created this supplement request.
     // In this app, each request is stored as a Supplier document,
@@ -36,8 +32,12 @@ const supplierSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["Pending", "Approved"],
+        enum: ["Pending", "Approved", "Rejected"],
         default: "Pending"
+    },
+    rejectionReason: {
+        type: String,
+        default: ""
     },
     photoUrl: {
         type: String,

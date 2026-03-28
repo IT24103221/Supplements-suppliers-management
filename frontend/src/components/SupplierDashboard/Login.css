@@ -1,0 +1,116 @@
+.login-page {
+  --gms-bg: #f8fafc;
+  --gms-surface: #ffffff;
+  --gms-text: #0f172a;
+  --gms-muted: #64748b;
+  --gms-accent: #e11d48;
+  --gms-accent-2: #2563eb;
+  --gms-border: rgba(15, 23, 42, 0.08);
+
+  min-height: 100vh;
+  background-color: var(--gms-bg);
+}
+
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+}
+
+.login-card {
+  background: var(--gms-surface);
+  max-width: 420px;
+  width: 100%;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--gms-border);
+  text-align: center;
+}
+
+.login-card h1 {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--gms-text);
+  margin-bottom: 8px;
+}
+
+.login-card p {
+  color: var(--gms-muted);
+  font-size: 15px;
+  margin-bottom: 32px;
+}
+
+.login-card form {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-card label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gms-text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.login-card input {
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--gms-border);
+  background: #f8fafc;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.login-card input:focus {
+  border-color: var(--gms-accent-2);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.login-btn {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, var(--gms-accent-2), #6366f1);
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-footer {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--gms-border);
+}
+
+.login-footer p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--gms-muted);
+}

@@ -19,9 +19,7 @@ function AddSuppliers() {
     name: "",
     email: "",
     phone: "",
-    address: "",
-    supplimentCategory: "",
-    supplimentProduct: ""
+    address: ""
   });
 
   const [photoFile, setPhotoFile] = React.useState(null);
@@ -55,15 +53,6 @@ function AddSuppliers() {
       newErrors.address = "Address is required.";
     }
 
-    // ✅ Category & Product validation
-    if (!input.supplimentCategory) {
-      newErrors.supplimentCategory = "Please select a category.";
-    }
-
-    if (!input.supplimentProduct) {
-      newErrors.supplimentProduct = "Please select a product.";
-    }
-
     if (photoFile) {
       const allowed = ["image/jpeg", "image/png", "image/webp"];
       if (!allowed.includes(photoFile.type)) {
@@ -86,21 +75,6 @@ function AddSuppliers() {
 
     if (e.target.name === "name") {
       value = value.replace(/[^a-zA-Z\s]/g, "");
-    }
-
-    // ✅ Category change වෙලාම product reset කරනවා
-    if (e.target.name === "supplimentCategory") {
-      setInput((prevState) => ({
-        ...prevState,
-        supplimentCategory: value,
-        supplimentProduct: ""
-      }));
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        supplimentCategory: "",
-        supplimentProduct: ""
-      }));
-      return;
     }
 
     setInput((prevState) => ({
@@ -145,8 +119,6 @@ function AddSuppliers() {
     formData.append("email", String(input.email));
     formData.append("phone", String(input.phone));
     formData.append("address", String(input.address));
-    formData.append("supplimentCategory", String(input.supplimentCategory));
-    formData.append("supplimentProduct", String(input.supplimentProduct));
     if (photoFile) formData.append("photo", photoFile);
 
     await axios
@@ -178,30 +150,6 @@ function AddSuppliers() {
           <label>Address:</label>
           <input type="text" name='address' value={input.address} onChange={handlechange} placeholder="Enter address" />
           {errors.address && <p className="error-msg">{errors.address}</p>}
-
-          {/* Category Dropdown */}
-          <label>Suppliment Category:</label>
-          <select name="supplimentCategory" value={input.supplimentCategory} onChange={handlechange} className="select-input">
-            <option value="">-- Select Category --</option>
-            {Object.keys(SUPPLIMENT_PRODUCTS).map((category) => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-          {errors.supplimentCategory && <p className="error-msg">{errors.supplimentCategory}</p>}
-
-          {/*Product Dropdown - Category selected */}
-          {input.supplimentCategory && (
-            <>
-              <label>Suppliment Product:</label>
-              <select name="supplimentProduct" value={input.supplimentProduct} onChange={handlechange} className="select-input">
-                <option value="">-- Select Product --</option>
-                {SUPPLIMENT_PRODUCTS[input.supplimentCategory].map((product) => (
-                  <option key={product} value={product}>{product}</option>
-                ))}
-              </select>
-              {errors.supplimentProduct && <p className="error-msg">{errors.supplimentProduct}</p>}
-            </>
-          )}
 
           <label>Photo (optional):</label>
           <input type="file" accept="image/*" onChange={handlePhotoChange} />

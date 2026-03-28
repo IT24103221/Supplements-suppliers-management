@@ -179,6 +179,44 @@
   }
 }
 
+/* Container for split weight input (Value + Unit) */
+.weight-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* The number input for weight value */
+.weight-value-input {
+  flex: 2;
+}
+
+/* The dropdown for weight units (mg, g, kg) */
+.weight-unit-select {
+  flex: 1;
+  margin-top: 0 !important; /* Override default label margin if any */
+}
+
+/* Textarea for supplement description */
+.description-textarea {
+  resize: vertical;
+  min-height: 100px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--gms-border);
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  color: var(--gms-text);
+  background: var(--gms-surface);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.description-textarea:focus {
+  border-color: rgba(225, 29, 72, 0.65);
+  box-shadow: 0 0 0 4px var(--gms-ring);
+  background: #ffffff;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .add-suppliers-container * {
     transition: none !important;

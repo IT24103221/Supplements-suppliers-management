@@ -46,7 +46,7 @@ const getAllSuppliers = async (req, res) => {
 
 //data Insert
 const createSupplierWithStatus = async (req, res, status) => {
-    const { name, email, phone, address, supplimentCategory, supplimentProduct, supplierId } = req.body;
+    const { name, email, phone, address, supplierId } = req.body;
 
     try {
         let photoUrl = "";
@@ -66,8 +66,6 @@ const createSupplierWithStatus = async (req, res, status) => {
             email,
             phone,
             address,
-            supplimentCategory,
-            supplimentProduct,
             status,
             // If provided, store supplierId explicitly; otherwise the schema default is used.
             supplierId: supplierId || undefined,
@@ -122,7 +120,7 @@ const getById = async (req, res, next) => {
 //Update supplier details
 const updateSupplier = async (req, res) => {
     const id = req.params.id;
-    const { name, email, phone, address, supplimentCategory, supplimentProduct } = req.body;
+    const { name, email, phone, address } = req.body;
 
     let updatedSupplier;
     try {
@@ -161,8 +159,6 @@ const updateSupplier = async (req, res) => {
         existing.email = email;
         existing.phone = phone;
         existing.address = address;
-        existing.supplimentCategory = supplimentCategory;
-        existing.supplimentProduct = supplimentProduct;
         existing.photoUrl = photoUrl;
         existing.photoPublicId = photoPublicId;
 
@@ -229,10 +225,9 @@ const approveSupplier = async (req, res) => {
 
 // Reject a pending supplier request:
 // - only allowed for Pending suppliers
-// - deletes the DB record
-// - deletes Cloudinary image if present
 const rejectSupplier = async (req, res) => {
     const id = req.params.id;
+    const { reason } = req.body;
 
     try {
         if (!requireAdmin(req, res)) {
@@ -248,16 +243,11 @@ const rejectSupplier = async (req, res) => {
             return res.status(400).json({ message: "Only pending suppliers can be rejected" });
         }
 
-        if (existing.photoPublicId) {
-            try {
-                await cloudinary.uploader.destroy(existing.photoPublicId, { resource_type: "image" });
-            } catch (e) {
-                console.log("Cloudinary delete failed:", e?.message || e);
-            }
-        }
+        existing.status = "Rejected";
+        existing.rejectionReason = reason || "No reason provided";
+        const updated = await existing.save();
 
-        await supplier.findByIdAndDelete(id);
-        return res.status(200).json({ message: "Supplier rejected and removed" });
+        return res.status(200).json({ message: "Supplier rejected", supplier: updated });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: "Server error", error: err.message });
@@ -280,6 +270,31 @@ const getPendingSuppliers = async (req, res) => {
     }
 };
 
+// Supplier Login: check if approved
+const supplierLogin = async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+    }
+    try {
+        const found = await supplier.findOne({ email });
+        if (!found) {
+            return res.status(404).json({ message: "No supplier found with this email" });
+        }
+        if (found.status !== "Approved") {
+            return res.status(403).json({ message: "Your account is still pending approval" });
+        }
+        return res.status(200).json({ 
+            message: "Login successful", 
+            supplierId: found._id,
+            name: found.name 
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Server error" });
+    }
+};
+
 exports.getAllSuppliers = getAllSuppliers;
 exports.addSupplier = addSupplier;
 exports.registerSupplier = registerSupplier;
@@ -289,4 +304,5 @@ exports.deleteSupplier = deleteSupplier;
 exports.getPendingSuppliers = getPendingSuppliers;
 exports.approveSupplier = approveSupplier;
 exports.rejectSupplier = rejectSupplier;
+exports.supplierLogin = supplierLogin;
   

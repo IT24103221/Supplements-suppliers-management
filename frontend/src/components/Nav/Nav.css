@@ -114,3 +114,21 @@
   border-radius: 999px;
   background: #e94560;
 }
+
+/* Logout Button */
+.nav-logout-btn {
+  background: transparent;
+  border: 1px solid rgba(233, 69, 96, 0.4);
+  color: #e94560;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-logout-btn:hover {
+  background: #e94560;
+  color: white;
+}

@@ -24,7 +24,7 @@ const getSupplementById = async (req, res) => {
     return res.status(400).json({ message: "Invalid supplement id" });
   }
   try {
-    const found = await supplement.findById(id);
+    const found = await supplement.findById(id).populate("supplierId", "name email photoUrl");
     if (!found) return res.status(404).json({ message: "Supplement not found" });
     return res.status(200).json({ supplement: found });
   } catch (err) {
@@ -40,6 +40,7 @@ const addSupplement = async (req, res) => {
       supplementName,
       supplementBrand,
       category,
+      supplementProduct,
       price,
       quantity,
       weight,
@@ -47,6 +48,23 @@ const addSupplement = async (req, res) => {
       description,
       supplierId,
     } = req.body;
+
+    // Backend Validations
+    if (!supplementName || !supplementBrand || !category || !supplementProduct || !price || !quantity || !weight || !expiryDate) {
+      return res.status(400).json({ message: "All required fields must be provided." });
+    }
+
+    const weightPattern = /^\d+(\.\d+)?(mg|g|kg)$/i;
+    if (!weightPattern.test(weight)) {
+      return res.status(400).json({ message: "Weight must be a number followed by mg, g, or kg (e.g., 500mg, 1kg)." });
+    }
+
+    const selectedDate = new Date(expiryDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate <= today) {
+      return res.status(400).json({ message: "Expiry date must be in the future." });
+    }
 
     let photoUrl = "";
     let photoPublicId = "";
@@ -64,10 +82,11 @@ const addSupplement = async (req, res) => {
       supplementName,
       supplementBrand,
       category,
+      supplementProduct,
       price: Number(price),
       quantity: Number(quantity),
       weight,
-      expiryDate: expiryDate ? new Date(expiryDate) : undefined,
+      expiryDate: new Date(expiryDate),
       description: description || "",
 
       // Track which supplier added the item.
@@ -105,12 +124,30 @@ const updateSupplement = async (req, res) => {
       supplementName,
       supplementBrand,
       category,
+      supplementProduct,
       price,
       quantity,
       weight,
       expiryDate,
       description,
     } = req.body;
+
+    // Backend Validations
+    if (weight) {
+      const weightPattern = /^\d+(\.\d+)?(mg|g|kg)$/i;
+      if (!weightPattern.test(weight)) {
+        return res.status(400).json({ message: "Weight must be a number followed by mg, g, or kg (e.g., 500mg, 1kg)." });
+      }
+    }
+
+    if (expiryDate) {
+      const selectedDate = new Date(expiryDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate <= today) {
+        return res.status(400).json({ message: "Expiry date must be in the future." });
+      }
+    }
 
     let photoUrl = existing.photoUrl || "";
     let photoPublicId = existing.photoPublicId || "";
@@ -139,6 +176,7 @@ const updateSupplement = async (req, res) => {
     existing.supplementName = supplementName ?? existing.supplementName;
     existing.supplementBrand = supplementBrand ?? existing.supplementBrand;
     existing.category = category ?? existing.category;
+    existing.supplementProduct = supplementProduct ?? existing.supplementProduct;
     if (price !== undefined) existing.price = Number(price);
     if (quantity !== undefined) existing.quantity = Number(quantity);
     existing.weight = weight ?? existing.weight;
@@ -204,8 +242,23 @@ const getPendingSupplements = async (req, res) => {
       return res.status(403).json({ message: "Admin access required" });
     }
 
-    const pending = await supplement.find({ status: "Pending" });
+    const pending = await supplement.find({ status: "Pending" }).populate("supplierId", "name email");
     return res.status(200).json({ supplements: pending });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// Supplier Dashboard: get supplements belonging to a specific supplier
+const getSupplementsBySupplier = async (req, res) => {
+  const supplierId = req.params.supplierId;
+  if (!supplierId) {
+    return res.status(400).json({ message: "Supplier ID is required" });
+  }
+  try {
+    const supplements = await supplement.find({ supplierId: supplierId });
+    return res.status(200).json({ supplements });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Server error", error: err.message });
@@ -242,11 +295,45 @@ const approveSupplement = async (req, res) => {
   }
 };
 
+// Admin: reject pending supplement (Pending -> Rejected)
+const rejectSupplement = async (req, res) => {
+  const id = req.params.id;
+  const { reason } = req.body;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid supplement id" });
+  }
+
+  try {
+    if (!requireAdmin(req, res)) {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
+    const existing = await supplement.findById(id);
+    if (!existing) {
+      return res.status(404).json({ message: "Supplement not found" });
+    }
+
+    if (existing.status !== "Pending") {
+      return res.status(400).json({ message: "Only pending supplements can be rejected" });
+    }
+
+    existing.status = "Rejected";
+    existing.rejectionReason = reason || "No reason provided";
+    const updated = await existing.save();
+    return res.status(200).json({ supplement: updated });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 exports.getAllSupplements = getAllSupplements;
 exports.addSupplement = addSupplement;
 exports.getSupplementById = getSupplementById;
 exports.updateSupplement = updateSupplement;
 exports.deleteSupplement = deleteSupplement;
 exports.getPendingSupplements = getPendingSupplements;
+exports.getSupplementsBySupplier = getSupplementsBySupplier;
 exports.approveSupplement = approveSupplement;
+exports.rejectSupplement = rejectSupplement;
 

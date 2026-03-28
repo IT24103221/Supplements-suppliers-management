@@ -10,7 +10,7 @@ const SUPPLEMENTS_URL = "http://localhost:5000/supplements";
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const [pendingSuppliers, setPendingSuppliers] = useState([]); // kept name to minimize UI churn
+  const [pendingSupplements, setPendingSupplements] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchPending = async () => {
@@ -19,7 +19,7 @@ function AdminDashboard() {
       const res = await axios.get(`${SUPPLEMENTS_URL}/pending`, {
         headers: { "x-user-role": "admin" },
       });
-      setPendingSuppliers(res.data?.supplements ?? []);
+      setPendingSupplements(res.data?.supplements ?? []);
     } catch (e) {
       toast.error(
         e?.response?.data?.message || "Failed to load pending supplements."
@@ -56,42 +56,39 @@ function AdminDashboard() {
         <div className="title-section">
           <h1>Pending Supplements</h1>
           <p style={{ color: "var(--gms-muted)", marginTop: 8 }}>
-            {pendingSuppliers.length} pending request(s)
+            {pendingSupplements.length} pending request(s)
           </p>
         </div>
 
         {loading ? (
           <div className="empty-msg">Loading...</div>
-        ) : pendingSuppliers.length === 0 ? (
+        ) : pendingSupplements.length === 0 ? (
           <div className="empty-msg">No pending supplements.</div>
         ) : (
           <table className="suppliers-table" aria-label="Pending supplements table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Contact</th>
-                <th>Category</th>
-                <th>Product</th>
+                <th>Supplement Name</th>
+                <th>Brand</th>
+                <th>Product Type</th>
+                <th>Price</th>
+                <th>Weight</th>
                 <th>Status</th>
                 <th data-label="Actions">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {pendingSuppliers.map((s) => (
-                <tr
-                  key={s._id}
-                >
-                  <td>{s.name}</td>
-                  <td>
-                    <div style={{ fontWeight: 700 }}>{s.email}</div>
-                    <div style={{ color: "var(--gms-muted)" }}>{s.phone}</div>
-                  </td>
-                  <td>{s.supplimentCategory || "-"}</td>
-                  <td>{s.supplimentProduct || "-"}</td>
+              {pendingSupplements.map((s) => (
+                <tr key={s._id}>
+                  <td>{s.supplementName}</td>
+                  <td>{s.supplementBrand}</td>
+                  <td>{s.supplementProduct || "-"}</td>
+                  <td>Rs. {s.price}</td>
+                  <td>{s.weight}</td>
                   <td>
                     <span className="pending-badge">{s.status || "Pending"}</span>
                   </td>
-                  <td data-label="Actions" onClick={(e) => e.stopPropagation()}>
+                  <td data-label="Actions">
                     <button
                       type="button"
                       className="btn-approve"

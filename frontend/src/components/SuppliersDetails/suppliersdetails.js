@@ -18,7 +18,7 @@ const fetchHandler = async () => {
 function SuppliersDetails() { 
   const [suppliers, setSuppliers] = useState([]);
   const [search, setSearch] = useState("");
-  const history = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Initial load for supplier catalog/dashboard
@@ -72,16 +72,13 @@ function SuppliersDetails() {
     supplier.name.toLowerCase().includes(search.toLowerCase()) ||
     supplier.email.toLowerCase().includes(search.toLowerCase()) ||
     supplier.phone.toLowerCase().includes(search.toLowerCase()) ||
-    supplier.address.toLowerCase().includes(search.toLowerCase()) ||
-    (supplier.supplimentCategory || "").toLowerCase().includes(search.toLowerCase()) ||
-    (supplier.supplimentProduct || "").toLowerCase().includes(search.toLowerCase())
+    supplier.address.toLowerCase().includes(search.toLowerCase())
   );
 
   // Split lists by approval status (defensive defaults avoid undefined errors)
   const approvedSuppliers = filteredSuppliers.filter(
     (s) => (s.status || "Approved") === "Approved"
   );
-  const pendingSuppliers = filteredSuppliers.filter((s) => s.status === "Pending");
 
   // ===== PDF REPORT GENERATOR =====
   const generatePDF = () => {
@@ -111,14 +108,10 @@ function SuppliersDetails() {
     doc.setFont('helvetica', 'bold');
     doc.text('Dashboard Summary', 14, 42);
 
-    const uniqueCategories = [...new Set(suppliers.map((s) => (s.supplimentCategory || "").trim()).filter(Boolean))].length;
-    const uniqueProducts = [...new Set(suppliers.map((s) => (s.supplimentProduct || "").trim()).filter(Boolean))].length;
     const latestSupplier = suppliers.length > 0 ? suppliers[suppliers.length - 1].name : "N/A";
 
     const summaryData = [
       ['Total Suppliers', suppliers.length],
-      ['Total Supplement Categories', uniqueCategories],
-      ['Total Supplement Products', uniqueProducts],
       ['Latest Supplier', latestSupplier],
     ];
 
@@ -154,14 +147,12 @@ function SuppliersDetails() {
 
     autoTable(doc, {
       startY: afterSummary + 4,
-      head: [['Name', 'Email', 'Phone', 'Address', 'Category', 'Product']],
+      head: [['Name', 'Email', 'Phone', 'Address']],
       body: suppliers.map((s) => [
         s.name,
         s.email,
         s.phone,
         s.address,
-        s.supplimentCategory || "-",
-        s.supplimentProduct || "-",
       ]),
       theme: 'striped',
       headStyles: {
@@ -194,14 +185,12 @@ function SuppliersDetails() {
 
       autoTable(doc, {
         startY: afterAll + 10,
-        head: [['Name', 'Email', 'Phone', 'Address', 'Category', 'Product']],
+        head: [['Name', 'Email', 'Phone', 'Address']],
         body: filteredSuppliers.map((s) => [
           s.name,
           s.email,
           s.phone,
           s.address,
-          s.supplimentCategory || "-",
-          s.supplimentProduct || "-",
         ]),
         theme: 'striped',
         headStyles: {
@@ -265,33 +254,7 @@ function SuppliersDetails() {
             </div>
           </div>
 
-            <div className="dash-card card-companies">
-            <div className="dash-card-icon">
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-              </svg>
-            </div>
-            <div className="dash-card-info">
-              <h3>{[...new Set(suppliers.map((s) => (s.supplimentCategory || "").trim()).filter(Boolean))].length}</h3>
-              <p>Total Supplement Categories</p>
-            </div>
-          </div>
-
-            <div className="dash-card card-brands">
-            <div className="dash-card-icon">
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-                <line x1="7" y1="7" x2="7.01" y2="7"/>
-              </svg>
-            </div>
-            <div className="dash-card-info">
-              <h3>{[...new Set(suppliers.map((s) => (s.supplimentProduct || "").trim()).filter(Boolean))].length}</h3>
-              <p>Total Supplement Products</p>
-            </div>
-          </div>
-
-          <div className="dash-card card-latest">
+            <div className="dash-card card-latest">
             <div className="dash-card-icon">
               <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/>
@@ -312,7 +275,7 @@ function SuppliersDetails() {
           <input
             type="text"
             className="search-bar"
-            placeholder="Search by name, email, phone, address, category or product..."
+            placeholder="Search by name, email, phone, or address..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -346,15 +309,15 @@ function SuppliersDetails() {
                 <div
                   key={supplier._id}
                   className="supplier-card"
-                  onClick={() => history(`/supplier/${supplier._id}`)}
+                  onClick={() => navigate(`/supplier/${supplier._id}`)}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      history(`/supplier/${supplier._id}`);
-                    }
-                  }}
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        navigate(`/supplier/${supplier._id}`);
+                      }
+                    }}
                   title="Click to view supplier details"
                 >
                   <div className="supplier-card__top">
@@ -385,18 +348,6 @@ function SuppliersDetails() {
                       <span className="supplier-meta__label">Phone</span>
                       <span className="supplier-meta__value">
                         {supplier.phone}
-                      </span>
-                    </div>
-                    <div className="supplier-meta__row">
-                      <span className="supplier-meta__label">Category</span>
-                      <span className="supplier-meta__value">
-                        {supplier.supplimentCategory || "-"}
-                      </span>
-                    </div>
-                    <div className="supplier-meta__row">
-                      <span className="supplier-meta__label">Product</span>
-                      <span className="supplier-meta__value">
-                        {supplier.supplimentProduct || "-"}
                       </span>
                     </div>
                   </div>
@@ -431,101 +382,6 @@ function SuppliersDetails() {
             })}
           </div>
         )}
-
-        {/* Pending requests section */}
-        <div className="pending-section">
-          <div className="pending-section__header">
-            <h2>Pending Requests</h2>
-            <span className="pending-section__count">{pendingSuppliers.length}</span>
-          </div>
-
-          {pendingSuppliers.length === 0 ? (
-            <div className="pending-section__empty">No pending requests.</div>
-          ) : (
-            <div className="suppliers-catalog pending-catalog">
-              {pendingSuppliers.map((supplier) => {
-                const name = supplier?.name || "";
-                const initial = (name.trim()[0] || "?").toUpperCase();
-
-                return (
-                  <div
-                    key={supplier._id}
-                    className="supplier-card supplier-card--pending"
-                    onClick={() => history(`/supplier/${supplier._id}`)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        history(`/supplier/${supplier._id}`);
-                      }
-                    }}
-                    title="Click to view supplier details"
-                  >
-                    <div className="supplier-card__top">
-                      <div className="supplier-avatar">
-                        {supplier.photoUrl ? (
-                          <img src={supplier.photoUrl} alt={`${name} avatar`} />
-                        ) : (
-                          <span className="supplier-avatar__initial">{initial}</span>
-                        )}
-                      </div>
-
-                      <div className="supplier-card__title">
-                        <div className="supplier-card__name">{supplier.name}</div>
-                        <div className="supplier-card__id">{supplier._id}</div>
-                        <div className="pending-badge">Pending</div>
-                      </div>
-                    </div>
-
-                    <div className="supplier-card__meta">
-                      <div className="supplier-meta__row">
-                        <span className="supplier-meta__label">Email</span>
-                        <span className="supplier-meta__value">{supplier.email}</span>
-                      </div>
-                      <div className="supplier-meta__row">
-                        <span className="supplier-meta__label">Phone</span>
-                        <span className="supplier-meta__value">{supplier.phone}</span>
-                      </div>
-                      <div className="supplier-meta__row">
-                        <span className="supplier-meta__label">Category</span>
-                        <span className="supplier-meta__value">{supplier.supplimentCategory || "-"}</span>
-                      </div>
-                      <div className="supplier-meta__row">
-                        <span className="supplier-meta__label">Product</span>
-                        <span className="supplier-meta__value">{supplier.supplimentProduct || "-"}</span>
-                      </div>
-                    </div>
-
-                    <div className="supplier-card__actions">
-                      <button
-                        className="btn-approve"
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          approveHandler(supplier._id);
-                        }}
-                      >
-                        Approve
-                      </button>
-
-                      <button
-                        className="btn-reject"
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          rejectHandler(supplier._id);
-                        }}
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
 
       </div>
     </div>
