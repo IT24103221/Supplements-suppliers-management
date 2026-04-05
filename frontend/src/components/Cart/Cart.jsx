@@ -8,7 +8,20 @@ function Cart() {
   const { cartItems, removeFromCart, updateQuantity, clearCart, cartCount } = useCart();
   const navigate = useNavigate();
 
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  
+  let shippingFee = 0;
+
+  if (subtotal <= 5000) {
+    shippingFee = 400;
+  } else if (subtotal <= 50000) {
+    shippingFee = 350;
+  } else {
+    shippingFee = 0;
+  }
+
+  const isFreeShipping = shippingFee === 0;
+  const totalPrice = subtotal + shippingFee;
 
   return (
     <div className="cart-page">
@@ -50,9 +63,17 @@ function Cart() {
                   <div className="cart-item-total">
                     Rs. {(item.price * item.quantity).toLocaleString()}
                   </div>
-                  <button className="remove-item" onClick={() => removeFromCart(item._id)}>
-                    &times;
-                  </button>
+                  <div className="cart-item-actions">
+                    <button 
+                      className="buy-this-item-btn"
+                      onClick={() => navigate("/checkout", { state: { items: [item] } })}
+                    >
+                      Buy This
+                    </button>
+                    <button className="remove-item" onClick={() => removeFromCart(item._id)}>
+                      &times;
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -61,17 +82,22 @@ function Cart() {
               <h2>Order Summary</h2>
               <div className="summary-row">
                 <span>Items ({cartCount})</span>
-                <span>Rs. {totalPrice.toLocaleString()}</span>
+                <span>Rs. {subtotal.toLocaleString()}</span>
               </div>
               <div className="summary-row">
                 <span>Shipping</span>
-                <span className="free-shipping">FREE</span>
+                <span className={isFreeShipping ? "free-shipping-text" : ""}>
+                  {isFreeShipping ? "FREE" : `Rs. ${shippingFee.toLocaleString()}`}
+                </span>
               </div>
               <div className="summary-total">
                 <span>Total Amount</span>
                 <span>Rs. {totalPrice.toLocaleString()}</span>
               </div>
-              <button className="checkout-btn" onClick={() => navigate("/checkout")}>
+              <button 
+                className="checkout-btn" 
+                onClick={() => navigate("/checkout", { state: { items: cartItems } })}
+              >
                 Proceed to Checkout
               </button>
               <button className="clear-cart-btn" onClick={clearCart}>

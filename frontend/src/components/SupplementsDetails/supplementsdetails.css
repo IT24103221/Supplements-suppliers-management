@@ -60,11 +60,25 @@
   font-weight: 500;
 }
 
-/* Responsive grid for supplement cards */
+/* Responsive grid for supplement cards - Updated to 4 columns catalog style */
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px; /* Slightly reduced gap for 4-column layout */
+}
+
+/* Tablet: 2 items per row */
+@media (max-width: 1200px) {
+  .store-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile: 1 item per row */
+@media (max-width: 640px) {
+  .store-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 
 /* 
@@ -146,10 +160,10 @@
 
 /* Main content area of the card */
 .store-card__body {
-  padding: 20px;
+  padding: 16px; /* Reduced from 20px */
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px; /* Reduced from 16px */
   flex-grow: 1;
 }
 
@@ -157,13 +171,13 @@
 .store-card__header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 /* Supplement product name */
 .store-card__name {
   font-weight: 800;
-  font-size: 18px;
+  font-size: 16px; /* Reduced from 18px */
   color: #0f172a;
   line-height: 1.3;
   margin: 0;
@@ -182,8 +196,8 @@
 .store-card__details {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 16px;
+  gap: 8px; /* Reduced from 12px */
+  padding: 12px; /* Reduced from 16px */
   background: #f1f5f9;
   border-radius: 12px;
 }
@@ -232,11 +246,11 @@
 /* Footer with price and action buttons */
 .store-card__footer {
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 12px; /* Reduced from 16px */
   border-top: 1px dashed #e2e8f0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column; /* Stack price and buttons vertically for more horizontal space in 4-column layout */
+  align-items: flex-start;
   gap: 12px;
 }
 
@@ -265,6 +279,7 @@
 .store-card__actions {
   display: flex;
   gap: 8px;
+  width: 100%; /* Take full width for better button distribution */
 }
 
 /* Common button styling */
@@ -283,6 +298,8 @@
 .store-card__btn--view {
   background: #f1f5f9;
   color: #475569;
+  flex: 1; /* Shared space */
+  text-align: center;
 }
 
 .store-card__btn--view:hover {
@@ -295,12 +312,53 @@
   background: #2563eb;
   color: #ffffff;
   flex: 2; /* Make cart button wider */
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  text-align: center;
 }
 
-.store-card__btn--cart:hover {
+.store-card__btn--cart:hover:not(:disabled) {
   background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  transform: translateY(-1px);
+}
+
+.store-card__btn--cart:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.out-of-stock-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #ef4444;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 2;
+}
+
+/* Stock status information */
+.store-card__stock-info {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.stock-in-stock {
+  color: #22c55e; /* text-green-500 */
+}
+
+.stock-out-of-stock {
+  color: #ef4444; /* text-red-600 */
+  font-weight: 900;
+}
+
+.stock-low-stock {
+  color: #f97316; /* text-orange-500 */
 }
 
 /* Edit button variant */
@@ -322,6 +380,29 @@
 
 .store-card__btn--delete:hover {
   background: #ffe4e6;
+}
+
+/* Notify button variant */
+.store-card__btn--notify {
+  background: #f97316; /* bg-orange-500 */
+  color: white;
+  border-radius: 6px;
+  padding: 8px 16px;
+  transition: background-color 0.2s;
+}
+
+.store-card__btn--notify:hover:not(:disabled) {
+  background: #ea580c; /* hover:bg-orange-600 */
+}
+
+.store-card__btn--notify:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.store-card__btn--notify.notified {
+  background: #94a3b8; /* text-slate-400 */
+  cursor: default;
 }
 
 /* Link reset */

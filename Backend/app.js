@@ -6,6 +6,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const routes = require("./Routes/supplierRoutes");
 const supplementRoutes = require("./Routes/supplementRoutes");
+const orderRoutes = require("./Routes/orderRoutes");
+const notificationRoutes = require("./Routes/notificationRoutes");
 
 
 const app = express();
@@ -16,6 +18,8 @@ app.use(express.json());
 app.use(cors());
 app.use("/suppliers", routes);
 app.use("/supplements", supplementRoutes);
+app.use("/orders", orderRoutes);
+app.use("/notifications", notificationRoutes);
 
 // Use a non-SRV (mongodb://) connection string if SRV DNS lookups are blocked.
 const uri = "mongodb://admin:094FWjs6CLyh2fO7@ac-xfyiebp-shard-00-00.69u6mvp.mongodb.net:27017,ac-xfyiebp-shard-00-01.69u6mvp.mongodb.net:27017,ac-xfyiebp-shard-00-02.69u6mvp.mongodb.net:27017/suppliers?replicaSet=atlas-7i9kvq-shard-0&ssl=true&authSource=admin&retryWrites=true&w=majority";

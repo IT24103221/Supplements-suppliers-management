@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import toast from "react-hot-toast";
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ children, allowedRoles, redirectTo }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -23,8 +23,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Redirect to home if user doesn't have required role
-    return <Navigate to="/mainhome" replace />;
+    // Redirect to custom path or home if user doesn't have required role
+    const fallbackPath = redirectTo || "/mainhome";
+    return <Navigate to={fallbackPath} replace />;
   }
 
   return children;

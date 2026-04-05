@@ -5,6 +5,7 @@ import Nav from "../Nav/Nav";
 import "./supplementsdetails.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 import "../SuppliersDetails/suppliersdetails.css";
 
@@ -27,13 +28,16 @@ function formatPrice(value) {
 function SupplementsDetails() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const [supplements, setSupplements] = useState([]);
   const [search, setSearch] = useState("");
+  const [notifying, setNotifying] = useState(null); // Track which supplement is being notified
+  const [notifiedItems, setNotifiedItems] = useState([]); // Track which items have been notified in this session
 
   // Session state for permission checks
   const currentUserId = localStorage.getItem("supplierId");
-  const userRole = localStorage.getItem("userRole");
-  const isAdmin = userRole === "admin" || localStorage.getItem("x-user-role") === "admin";
+  const userRole = user?.role || localStorage.getItem("userRole");
+  const isAdmin = userRole === "admin" || localStorage.getItem("isAdmin") === "true";
 
   /**
    * Fetches all approved supplements from the backend.
@@ -66,6 +70,39 @@ function SupplementsDetails() {
       await fetchSupplements();
     } catch (e) {
       toast.error(e?.response?.data?.message || "Failed to delete supplement.");
+    }
+  };
+
+  const handleNotify = async (supplement) => {
+    // Try getting adminId from Context first, then localStorage
+    const adminId = user?.id || user?._id || localStorage.getItem("adminId");
+    
+    if (!adminId) {
+      toast.error("Admin session error. Please log in again.");
+      return;
+    }
+
+    if (!supplement.supplierId) {
+      toast.error("This supplement has no assigned supplier.");
+      return;
+    }
+
+    setNotifying(supplement._id);
+
+    try {
+      await axios.post("http://localhost:5000/notifications", {
+        recipientId: supplement.supplierId,
+        senderId: adminId,
+        message: `Admin requested a restock for ${supplement.supplementName}.`,
+        type: "restock_request",
+        relatedSupplementId: supplement._id,
+      });
+      toast.success("Notification sent to Supplier!");
+      setNotifiedItems(prev => [...prev, supplement._id]);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to send notification.");
+    } finally {
+      setNotifying(null);
     }
   };
 
@@ -150,6 +187,7 @@ function SupplementsDetails() {
                               {String(s.supplementName || "?").trim()[0]?.toUpperCase() || "?"}
                             </div>
                           )}
+                          {s.availableStock === 0 && <div className="out-of-stock-badge">Out of Stock</div>}
                           <div className="store-card__badge">{s.category}</div>
                         </div>
                       </Link>
@@ -166,16 +204,16 @@ function SupplementsDetails() {
                           </div>
                         </Link>
 
-                        {/* Structured Data Section (Step-by-Step Info) */}
-                        <div className="store-card__details">
-                          <div className="store-card__detail-item">
-                            <span className="detail-label">Product Type</span>
-                            <span className="detail-value">{s.supplementProduct || "N/A"}</span>
-                          </div>
-                          <div className="store-card__detail-item">
-                            <span className="detail-label">Weight</span>
-                            <span className="detail-value">{s.weight}</span>
-                          </div>
+                        <div className="store-card__stock-info">
+                          {s.availableStock === 0 ? (
+                            <span className="stock-out-of-stock">OUT OF STOCK</span>
+                          ) : s.availableStock <= 5 ? (
+                            <span className="stock-low-stock">
+                              Only {s.availableStock} left!
+                            </span>
+                          ) : (
+                            <span className="stock-in-stock">In Stock</span>
+                          )}
                         </div>
 
                         {/* Footer Section (Price & Actions) */}
@@ -185,27 +223,49 @@ function SupplementsDetails() {
                             <span className="price-amount">{formatPrice(s.price)}</span>
                           </div>
                           <div className="store-card__actions">
-                            <button
-                              type="button"
-                              className="store-card__btn store-card__btn--cart"
-                              onClick={() => addToCart(s)}
-                            >
-                              Add to Cart
-                            </button>
+                            {/* --- Customer View --- */}
+                            {userRole === 'user' && (
+                              <button
+                                type="button"
+                                className={`store-card__btn store-card__btn--cart ${s.availableStock === 0 ? 'disabled' : ''}`}
+                                onClick={() => addToCart(s)}
+                                disabled={s.availableStock === 0}
+                              >
+                                {s.availableStock > 0 ? "Add to Cart" : "Out of Stock"}
+                              </button>
+                            )}
+
                             <Link className="store-card__btn store-card__btn--view" to={`/supplement/${s._id}`}>
                               Details
                             </Link>
                             
-                            {/* --- Owner or Admin Permissions Logic --- */}
+                            {/* --- Admin & Supplier View --- */}
                             {(isAdmin || (currentUserId && s.supplierId === currentUserId)) && (
                               <>
-                                <button
-                                  type="button"
-                                  className="store-card__btn store-card__btn--delete"
-                                  onClick={() => deleteSupplement(s._id)}
-                                >
-                                  Delete
-                                </button>
+                                {isAdmin && (
+                                  <button
+                                    type="button"
+                                    className="store-card__btn store-card__btn--delete"
+                                    onClick={() => deleteSupplement(s._id)}
+                                  >
+                                    Delete
+                                  </button>
+                                )}
+                                {isAdmin && s.availableStock === 0 && (
+                                  <button
+                                    type="button"
+                                    className={`store-card__btn store-card__btn--notify ${notifiedItems.includes(s._id) ? 'notified' : ''}`}
+                                    onClick={() => handleNotify(s)}
+                                    disabled={notifying === s._id || notifiedItems.includes(s._id)}
+                                  >
+                                    {notifying === s._id ? "Notifying..." : notifiedItems.includes(s._id) ? "Notified" : "Notify Supplier"}
+                                  </button>
+                                )}
+                                {currentUserId && s.supplierId === currentUserId && (
+                                  <Link to={`/edit-supplement/${s._id}`} className="store-card__btn store-card__btn--edit">
+                                    Edit
+                                  </Link>
+                                )}
                               </>
                             )}
                           </div>

@@ -65,11 +65,18 @@ function Nav() {
             </li>
 
             {isSupplier && (
-              <li className="home-1l">
-                <Link to={`/supplier-dashboard/${user.id}`} className="nav-link">
-                  <h1>Dashboard</h1>
-                </Link>
-              </li>
+              <>
+                <li className="home-1l">
+                  <Link to={`/supplier-dashboard/${user.id}`} className="nav-link">
+                    <h1>Dashboard</h1>
+                  </Link>
+                </li>
+                <li className="home-1l">
+                  <Link to="/notifications" className="nav-link">
+                    <h1>Notifications</h1>
+                  </Link>
+                </li>
+              </>
             )}
             
             {isAdmin && (
@@ -90,14 +97,23 @@ function Nav() {
               </>
             )}
 
-            <li className="home-1l">
-              <Link to="/cart" className="nav-link">
-                <h1>
-                  Cart
-                  {cartCount > 0 && <span className="nav-badge">{cartCount}</span>}
-                </h1>
-              </Link>
-            </li>
+            {isUser && (
+              <>
+                <li className="home-1l">
+                  <Link to="/cart" className="nav-link">
+                    <h1>
+                      Cart
+                      {cartCount > 0 && <span className="nav-badge">{cartCount}</span>}
+                    </h1>
+                  </Link>
+                </li>
+                <li className="home-1l">
+                  <Link to="/my-orders" className="nav-link">
+                    <h1>My Orders</h1>
+                  </Link>
+                </li>
+              </>
+            )}
 
             <li className="home-1l">
               <button onClick={logout} className="nav-logout-btn">

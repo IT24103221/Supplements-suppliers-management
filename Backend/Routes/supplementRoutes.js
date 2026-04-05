@@ -23,6 +23,9 @@ router.get("/:id", supplementContraller.getSupplementById);
 // Update supplement (with optional photo replace)
 router.put("/:id", upload.single("photo"), supplementContraller.updateSupplement);
 
+// Supplier: Refill Stock (reorder)
+router.put("/reorder/:id", supplementContraller.reorderSupplement);
+
 // Admin approves Pending -> Approved
 router.patch("/approve/:id", supplementContraller.approveSupplement);
 

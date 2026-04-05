@@ -1,0 +1,242 @@
+.checkout-page {
+  padding-top: 80px;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 40px;
+}
+
+.shipping-info, .order-summary-sidebar {
+  background-color: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.shipping-info h2, .order-summary-sidebar h2 {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  color: #1e293b;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #475569;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.payment-method-section {
+  margin-top: 40px;
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* space-y-3 equivalent */
+}
+
+.payment-option-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px; /* p-4 equivalent */
+  border: 1px solid #e2e8f0; /* border-gray-200 */
+  border-radius: 12px; /* rounded-xl equivalent */
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: white;
+}
+
+.payment-option-card:hover {
+  background-color: #f8fafc; /* hover:bg-gray-50 */
+  border-color: #cbd5e1;
+}
+
+.payment-option-card.active {
+  border-color: #2563eb; /* border-blue-600 */
+  background-color: #eff6ff; /* bg-blue-50 */
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+.payment-option-card input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.payment-option-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.payment-logos-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  padding: 4px 8px;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+}
+
+.gateway-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+
+.cod-icon {
+  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.method-label {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+input[type="text"].input-error {
+  border-color: #ef4444; /* border-red-500 */
+}
+
+.error-msg {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  display: block;
+}
+
+.place-order-btn {
+  width: 100%;
+  margin-top: 40px;
+  padding: 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.place-order-btn:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.place-order-btn:disabled {
+  background-color: #cbd5e1;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.order-summary-sidebar {
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.summary-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  color: #64748b;
+}
+
+.summary-item-wrapper {
+  margin-bottom: 16px;
+}
+
+.summary-divider {
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 16px 0;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.free-shipping-text {
+  color: #16a34a;
+  font-weight: 900;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #064e3b; /* Dark green */
+  padding-top: 16px;
+  border-top: 2px dashed #e2e8f0;
+}
+
+@media (max-width: 968px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .order-summary-sidebar {
+    position: static;
+    order: -1;
+  }
+}

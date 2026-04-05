@@ -1,4 +1,5 @@
 import "./App.css";
+import "./global.css";
 import Home from "./components/Home/Home";
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -16,6 +17,11 @@ import SupplierDashboard from "./components/SupplierDashboard/SupplierDashboard.
 import SupplierLogin from "./components/SupplierDashboard/SupplierLogin.jsx";
 import Login from "./components/SupplierDashboard/Login.jsx";
 import Cart from "./components/Cart/Cart.jsx";
+import Checkout from "./components/Checkout/Checkout.jsx";
+import WebXpayMock from "./components/Checkout/WebXpayMock.jsx";
+import PaymentSuccess from "./components/Checkout/PaymentSuccess.jsx";
+import CustomerOrders from "./components/Checkout/CustomerOrders.jsx";
+import NotificationsPage from "./components/Notifications/NotificationsPage.jsx";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -32,13 +38,27 @@ function App() {
             <Route path="/mainhome" element={<Home />} />
             <Route path="/login" element={<Login />} />
             
-            {/* Checkout Route (Placeholder) */}
             <Route path="/checkout" element={
-              <ProtectedRoute>
-                <div style={{ padding: '80px', textAlign: 'center' }}>
-                  <h1>Checkout Page</h1>
-                  <p>Payment processing would happen here.</p>
-                </div>
+              <ProtectedRoute allowedRoles={["user"]}>
+                <Checkout />
+              </ProtectedRoute>
+            } />
+            <Route path="/webxpay-checkout/:orderId" element={
+              <ProtectedRoute allowedRoles={["user"]}>
+                <WebXpayMock />
+              </ProtectedRoute>
+            } />
+            <Route path="/payment-success" element={
+              <ProtectedRoute allowedRoles={["user"]}>
+                <PaymentSuccess />
+              </ProtectedRoute>
+            } />
+            <Route path="/notifications" element={
+              <ProtectedRoute 
+                allowedRoles={["supplier"]} 
+                redirectTo="/pending-requests"
+              >
+                <NotificationsPage />
               </ProtectedRoute>
             } />
             
@@ -64,8 +84,13 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/cart" element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["user"]}>
                 <Cart />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-orders" element={
+              <ProtectedRoute allowedRoles={["user"]}>
+                <CustomerOrders />
               </ProtectedRoute>
             } />
             <Route path="/supplement/:id" element={

@@ -5,6 +5,7 @@ import Nav from "../Nav/Nav";
 import "./SupplementDetails.css";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 /**
  * SupplementDetails Component
@@ -14,14 +15,16 @@ function SupplementDetails() {
   const { id } = useParams(); // Get the supplement ID from the URL
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const [supplement, setSupplement] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [qtyError, setQtyError] = useState("");
 
   // Session state for permission checks
   const currentUserId = localStorage.getItem("supplierId");
-  const userRole = localStorage.getItem("userRole");
-  const isAdmin = userRole === "admin" || localStorage.getItem("x-user-role") === "admin";
+  const userRole = user?.role || localStorage.getItem("userRole");
+  const isAdmin = userRole === "admin" || localStorage.getItem("isAdmin") === "true";
 
   // API Endpoint for supplements
   const SUPPLEMENTS_URL = "http://localhost:5000/supplements";
@@ -78,10 +81,16 @@ function SupplementDetails() {
 
   const handleBuyNow = () => {
     if (!supplement) return;
-    // Add silently to avoid the "Added to Cart" toast before redirecting
-    addToCart(supplement, quantity, true);
+    
+    // Path A: Direct Buy
+    // Navigate to checkout with ONLY this product's data, ignoring current cart
+    const directBuyItem = {
+      ...supplement,
+      quantity: quantity
+    };
+    
     toast.success("Redirecting to checkout...");
-    navigate("/checkout");
+    navigate("/checkout", { state: { items: [directBuyItem] } });
   };
 
   if (loading) {
@@ -164,7 +173,15 @@ function SupplementDetails() {
               </div>
               <div className="spec-item">
                 <span className="spec-label">Stock Available</span>
-                <span className="spec-value">{supplement.quantity} units</span>
+                {supplement.availableStock === 0 ? (
+                  <span className="spec-value stock-out-of-stock">OUT OF STOCK</span>
+                ) : supplement.availableStock <= 5 ? (
+                  <span className="spec-value stock-low-stock">
+                    Only {supplement.availableStock} items left! Hurry up!
+                  </span>
+                ) : (
+                  <span className="spec-value">{supplement.availableStock} units</span>
+                )}
               </div>
               <div className="spec-item">
                 <span className="spec-label">Product Type</span>
@@ -185,29 +202,78 @@ function SupplementDetails() {
 
             {/* --- Shopping Actions --- */}
             <div className="shopping-actions">
-              <div className="quantity-selector">
-                <button 
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  disabled={quantity <= 1}
-                >
-                  -
-                </button>
-                <input 
-                  type="number" 
-                  value={quantity} 
-                  readOnly 
-                />
-                <button 
-                  onClick={() => setQuantity(q => Math.min(supplement.quantity, q + 1))}
-                  disabled={quantity >= supplement.quantity}
-                >
-                  +
-                </button>
-              </div>
+              {userRole === 'user' ? (
+                <div className="quantity-selector-container">
+                  <div className="quantity-selector">
+                    <button 
+                      onClick={() => {
+                        setQuantity(q => Math.max(1, q - 1));
+                        setQtyError("");
+                      }}
+                      disabled={quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <input 
+                      type="number" 
+                      value={quantity} 
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (isNaN(val) || val < 1) {
+                          setQuantity(1);
+                          setQtyError("");
+                        } else if (val > supplement.availableStock) {
+                          setQuantity(supplement.availableStock);
+                          setQtyError(`Only ${supplement.availableStock} units available in stock`);
+                        } else {
+                          setQuantity(val);
+                          setQtyError("");
+                        }
+                      }}
+                    />
+                    <button 
+                      onClick={() => {
+                        if (quantity < supplement.availableStock) {
+                          setQuantity(prev => prev + 1);
+                          setQtyError("");
+                        } else {
+                          setQtyError(`Only ${supplement.availableStock} units available in stock`);
+                        }
+                      }}
+                      disabled={quantity >= supplement.availableStock}
+                      className={quantity >= supplement.availableStock ? "disabled-plus" : ""}
+                    >
+                      +
+                    </button>
+                  </div>
+                  {qtyError && <p className="qty-error-text">{qtyError}</p>}
+                </div>
+              ) : (
+                <div className="stock-info-label">
+                  <span className="label">Current Stock:</span>
+                  <span className="value">{supplement.availableStock} units</span>
+                </div>
+              )}
 
               <div className="shopping-buttons">
-                <button className="buy-now-btn" onClick={handleBuyNow}>Buy Now</button>
-                <button className="add-to-cart-btn" onClick={handleAddToCart}>Add to Cart</button>
+                {userRole === 'user' && (
+                  <>
+                    <button 
+                      className="buy-now-btn" 
+                      onClick={handleBuyNow}
+                      disabled={supplement.availableStock === 0}
+                    >
+                      Buy Now
+                    </button>
+                    <button 
+                      className="add-to-cart-btn" 
+                      onClick={handleAddToCart}
+                      disabled={supplement.availableStock === 0}
+                    >
+                      {supplement.availableStock > 0 ? "Add to Cart" : "Out of Stock"}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 

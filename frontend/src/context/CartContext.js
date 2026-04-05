@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 
 const CartContext = createContext();
@@ -13,7 +13,7 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product, quantity = 1, silent = false) => {
+  const addToCart = useCallback((product, quantity = 1, silent = false) => {
     let success = false;
     let errorMsg = "";
 
@@ -22,8 +22,8 @@ export const CartProvider = ({ children }) => {
       
       if (existingItem) {
         const newQuantity = existingItem.quantity + quantity;
-        if (newQuantity > product.quantity) {
-          errorMsg = `Only ${product.quantity} items available in stock.`;
+        if (newQuantity > product.availableStock) {
+          errorMsg = `Only ${product.availableStock} items available in stock.`;
           return prevItems;
         }
         success = true;
@@ -31,8 +31,8 @@ export const CartProvider = ({ children }) => {
           item._id === product._id ? { ...item, quantity: newQuantity } : item
         );
       } else {
-        if (quantity > product.quantity) {
-          errorMsg = `Only ${product.quantity} items available in stock.`;
+        if (quantity > product.availableStock) {
+          errorMsg = `Only ${product.availableStock} items available in stock.`;
           return prevItems;
         }
         success = true;
@@ -46,22 +46,22 @@ export const CartProvider = ({ children }) => {
     } else if (success && !silent) {
       toast.success(`${product.supplementName} added to cart!`, { id: `cart-success-${product._id}` });
     }
-  };
+  }, []);
 
-  const removeFromCart = (productId) => {
+  const removeFromCart = useCallback((productId) => {
     setCartItems((prevItems) => prevItems.filter((item) => item._id !== productId));
     toast.success("Item removed from cart.", { id: `cart-remove-${productId}` });
-  };
+  }, []);
 
-  const updateQuantity = (productId, newQuantity) => {
+  const updateQuantity = useCallback((productId, newQuantity) => {
     let errorMsg = "";
 
     setCartItems((prevItems) =>
       prevItems.map((item) => {
         if (item._id === productId) {
-          // Check stock before updating (assuming stock is in item.quantity)
-          if (newQuantity > item.quantity) {
-             errorMsg = `Only ${item.quantity} items available in stock.`;
+          // Check stock before updating
+          if (newQuantity > item.availableStock) {
+             errorMsg = `Only ${item.availableStock} items available in stock.`;
              return item;
           }
           return { ...item, quantity: Math.max(1, newQuantity) };
@@ -73,14 +73,15 @@ export const CartProvider = ({ children }) => {
     if (errorMsg) {
       toast.error(errorMsg, { id: `qty-error-${productId}` });
     }
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCartItems([]);
     localStorage.removeItem("cart");
-  };
+  }, []);
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
     <CartContext.Provider
@@ -91,6 +92,7 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         clearCart,
         cartCount,
+        totalPrice,
       }}
     >
       {children}

@@ -9,6 +9,7 @@ const supplementSchema = new mongoose.Schema({
 
   price: { type: Number, required: true },
   quantity: { type: Number, required: true },
+  availableStock: { type: Number, required: true, default: 0 },
   weight: { type: String, required: true },
   expiryDate: { type: Date, required: true },
   description: { type: String, default: "" },

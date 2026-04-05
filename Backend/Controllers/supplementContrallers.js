@@ -85,6 +85,7 @@ const addSupplement = async (req, res) => {
       supplementProduct,
       price: Number(price),
       quantity: Number(quantity),
+      availableStock: Number(quantity), // Initialize availableStock with the quantity
       weight,
       expiryDate: new Date(expiryDate),
       description: description || "",
@@ -251,6 +252,39 @@ const getPendingSupplements = async (req, res) => {
 };
 
 // Supplier Dashboard: get supplements belonging to a specific supplier
+const reorderSupplement = async (req, res) => {
+  const id = req.params.id;
+  const { newQuantity } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid supplement id" });
+  }
+
+  if (!newQuantity || isNaN(newQuantity) || Number(newQuantity) <= 0) {
+    return res.status(400).json({ message: "Please provide a valid quantity greater than 0." });
+  }
+
+  try {
+    const existing = await supplement.findById(id);
+    if (!existing) {
+      return res.status(404).json({ message: "Supplement not found" });
+    }
+
+    // Add to existing availableStock and update total quantity
+    existing.availableStock = (existing.availableStock || 0) + Number(newQuantity);
+    existing.quantity = (existing.quantity || 0) + Number(newQuantity);
+
+    const updated = await existing.save();
+    return res.status(200).json({ 
+      message: "Stock updated successfully", 
+      supplement: updated 
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 const getSupplementsBySupplier = async (req, res) => {
   const supplierId = req.params.supplierId;
   if (!supplierId) {
@@ -336,4 +370,5 @@ exports.getPendingSupplements = getPendingSupplements;
 exports.getSupplementsBySupplier = getSupplementsBySupplier;
 exports.approveSupplement = approveSupplement;
 exports.rejectSupplement = rejectSupplement;
+exports.reorderSupplement = reorderSupplement;
 
