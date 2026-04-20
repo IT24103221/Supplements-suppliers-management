@@ -240,9 +240,6 @@ const Checkout = () => {
                       readOnly
                     />
                     <div className="payment-option-content">
-                      <div className="payment-logos-group">
-                        <div className="cod-icon">💵</div>
-                      </div>
                       <span className="method-label">Cash on Delivery (COD)</span>
                     </div>
                   </div>
@@ -251,7 +248,7 @@ const Checkout = () => {
 
               <button 
                 type="submit" 
-                className={`place-order-btn ${!isFormValid ? 'disabled' : ''}`}
+                className={`btn-gms btn-gms-primary place-order-btn ${!isFormValid ? 'disabled' : ''}`}
                 disabled={!isFormValid}
               >
                 {!paymentMethod ? "Select Payment Method" : (paymentMethod === "Online" ? "Proceed to Online Payment" : "Place Order")}

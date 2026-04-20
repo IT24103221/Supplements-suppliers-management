@@ -178,8 +178,18 @@ const updateSupplement = async (req, res) => {
     existing.supplementBrand = supplementBrand ?? existing.supplementBrand;
     existing.category = category ?? existing.category;
     existing.supplementProduct = supplementProduct ?? existing.supplementProduct;
+    
+    // Business Logic: Admins cannot change quantity or supplierId during a standard update
+    const isAdmin = req.headers["x-user-role"] === "admin";
+    
     if (price !== undefined) existing.price = Number(price);
-    if (quantity !== undefined) existing.quantity = Number(quantity);
+    
+    if (!isAdmin && quantity !== undefined) {
+        existing.quantity = Number(quantity);
+        // Also update availableStock if quantity is changed by supplier
+        existing.availableStock = Number(quantity); 
+    }
+    
     existing.weight = weight ?? existing.weight;
     if (expiryDate) existing.expiryDate = new Date(expiryDate);
     if (description !== undefined) existing.description = description;

@@ -5,6 +5,7 @@ import Nav from "../Nav/Nav";
 import "./SupplementDetails.css";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/CartContext";
+import { ShoppingCart, Package, AlertTriangle, Info, Trash2, Edit, CheckCircle, ChevronLeft, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 /**
@@ -22,9 +23,9 @@ function SupplementDetails() {
   const [qtyError, setQtyError] = useState("");
 
   // Session state for permission checks
-  const currentUserId = localStorage.getItem("supplierId");
+  const currentUserId = user?.id || localStorage.getItem("supplierId");
   const userRole = user?.role || localStorage.getItem("userRole");
-  const isAdmin = userRole === "admin" || localStorage.getItem("isAdmin") === "true";
+  const isAdmin = userRole === "admin";
 
   // API Endpoint for supplements
   const SUPPLEMENTS_URL = "http://localhost:5000/supplements";
@@ -126,8 +127,8 @@ function SupplementDetails() {
       <div className="details-main-container">
         {/* --- Header Section --- */}
         <header className="details-header">
-          <button className="back-link" onClick={() => navigate("/supplementsdetails")}>
-            &larr; Back to Store
+          <button className="back-link flex items-center gap-1" onClick={() => navigate("/supplementsdetails")}>
+            <ChevronLeft size={20} /> Back to Store
           </button>
           <h1>Supplement Details</h1>
         </header>
@@ -145,7 +146,7 @@ function SupplementDetails() {
                 />
               ) : (
                 <div className="product-placeholder">
-                  {supplement.supplementName?.charAt(0).toUpperCase() || "?"}
+                  <Package size={80} strokeWidth={1} color="#94a3b8" />
                 </div>
               )}
             </div>
@@ -174,10 +175,12 @@ function SupplementDetails() {
               <div className="spec-item">
                 <span className="spec-label">Stock Available</span>
                 {supplement.availableStock === 0 ? (
-                  <span className="spec-value stock-out-of-stock">OUT OF STOCK</span>
+                  <span className="spec-value stock-out-of-stock flex items-center gap-1">
+                    <AlertTriangle size={14} /> OUT OF STOCK
+                  </span>
                 ) : supplement.availableStock <= 5 ? (
-                  <span className="spec-value stock-low-stock">
-                    Only {supplement.availableStock} items left! Hurry up!
+                  <span className="spec-value stock-low-stock flex items-center gap-1">
+                    <AlertTriangle size={14} /> Only {supplement.availableStock} items left! Hurry up!
                   </span>
                 ) : (
                   <span className="spec-value">{supplement.availableStock} units</span>
@@ -259,18 +262,18 @@ function SupplementDetails() {
                 {userRole === 'user' && (
                   <>
                     <button 
-                      className="buy-now-btn" 
+                      className="buy-now-btn flex items-center justify-center gap-2" 
                       onClick={handleBuyNow}
                       disabled={supplement.availableStock === 0}
                     >
-                      Buy Now
+                      <CheckCircle size={20} /> Buy Now
                     </button>
                     <button 
-                      className="add-to-cart-btn" 
+                      className="add-to-cart-btn flex items-center justify-center gap-2" 
                       onClick={handleAddToCart}
                       disabled={supplement.availableStock === 0}
                     >
-                      {supplement.availableStock > 0 ? "Add to Cart" : "Out of Stock"}
+                      <ShoppingCart size={20} /> {supplement.availableStock > 0 ? "Add to Cart" : "Out of Stock"}
                     </button>
                   </>
                 )}
@@ -280,7 +283,9 @@ function SupplementDetails() {
             {/* --- Supplier Information Section --- */}
             <div className="supplier-info-card">
               <div className="supplier-info-header">
-                <span className="sold-by-label">Sold By</span>
+                <span className="sold-by-label flex items-center gap-1">
+                  <Package size={12} /> Sold By
+                </span>
               </div>
               <div className="supplier-info-content">
                 <div className="supplier-avatar-mini">
@@ -303,16 +308,16 @@ function SupplementDetails() {
             {(isAdmin || (currentUserId && supplement.supplierId === currentUserId || (supplement.supplierId?._id && supplement.supplierId._id === currentUserId))) && (
               <div className="details-actions">
                 <button 
-                  className="mgmt-btn mgmt-btn--edit" 
+                  className="mgmt-btn mgmt-btn--edit flex items-center justify-center gap-2" 
                   onClick={() => navigate(`/updatesupplements/${supplement._id}`)}
                 >
-                  Edit Supplement
+                  <Edit size={18} /> Edit Supplement
                 </button>
                 <button 
-                  className="mgmt-btn mgmt-btn--delete" 
+                  className="mgmt-btn mgmt-btn--delete flex items-center justify-center gap-2" 
                   onClick={() => handleDelete(supplement._id)}
                 >
-                  Delete Supplement
+                  <Trash2 size={18} /> Delete Supplement
                 </button>
               </div>
             )}

@@ -1,13 +1,17 @@
 .webxpay-page {
-  padding-top: 80px;
+  padding-top: 0; /* Remove top padding specifically for this route */
+  margin: 0; /* Ensure body/wrapper starts from top */
   min-height: 100vh;
   background-color: #f0f4f8;
+  display: flex;
+  flex-direction: column;
 }
 
 .webxpay-container {
+  flex: 1; /* Take up remaining space */
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center; /* Center the payment card vertically */
   padding: 40px 20px;
 }
 
@@ -15,7 +19,7 @@
   width: 100%;
   max-width: 500px;
   background-color: white;
-  border-radius: 16px;
+  border-radius: 14px; /* Consistent 12px-14px border-radius */
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
@@ -68,10 +72,12 @@
 .form-group input {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e2e8f0; /* Subtle border color */
   border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  font-size: 0.9375rem; /* Professional slightly smaller font */
+  font-family: 'Inter', 'Roboto', sans-serif; /* Consistent font */
+  color: #1e293b;
+  transition: all 0.2s;
 }
 
 .form-group input:focus {
@@ -99,9 +105,14 @@
 }
 
 .gateway-logo {
-  height: 24px;
-  width: auto;
+  height: 20px; /* Unified height */
+  width: 32px; /* Unified width */
   object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+
+.gateway-logo.dimmed {
+  opacity: 0.2; /* Dim the icon that doesn't match */
 }
 
 .form-row {
@@ -127,19 +138,19 @@
 .pay-now-btn {
   width: 100%;
   margin-top: 20px;
-  padding: 16px;
-  background-color: #003366;
+  padding: 14px;
+  background-color: #2563eb; /* Standard Deep Blue */
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
+  border-radius: 12px; /* Consistent 12px radius */
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .pay-now-btn:hover:not(:disabled) {
-  background-color: #002244;
+  background-color: #1d4ed8;
 }
 
 .pay-now-btn:disabled {

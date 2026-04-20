@@ -1,5 +1,5 @@
 .payment-success-page {
-  padding-top: 80px;
+  padding-top: 0; /* Removed top padding to pin Navbar to the top */
   min-height: 100vh;
   background-color: #f8fafc;
   display: flex;
@@ -130,7 +130,7 @@
 }
 
 .payment-error-page {
-  padding-top: 80px;
+  padding-top: 0; /* Removed top padding to pin Navbar to the top */
   min-height: 100vh;
   display: flex;
   flex-direction: column;

@@ -1,32 +1,104 @@
-/* Global Styles */
+:root {
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-soft: rgba(255, 255, 255, 0.03);
+  --text-high: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-secondary: #94a3b8;
+  --card-radius: 16px;
+  --section-gap: 32px;
+  --page-max-width: 1320px;
+  
+  /* Global Button Variables */
+  --btn-radius: 12px;
+  --btn-primary-bg: #2563eb;
+  --btn-danger-bg: #e11d48;
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-border: #e2e8f0;
+  --btn-secondary-text: #475569;
+  --btn-padding-y: 12px;
+  --btn-padding-x: 24px;
+}
+
+* {
+  box-sizing: border-box;
+}
 
 .page-title {
   font-size: 2.5rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-high);
 }
 
-.btn {
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 8px;
+/* Global Unified Button Styles */
+.btn-gms {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: var(--btn-padding-y) var(--btn-padding-x);
+  border-radius: var(--btn-radius);
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
   cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  box-shadow: none !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-gms:hover {
+  filter: brightness(0.9);
+}
+
+.btn-gms:disabled,
+.btn-gms.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+/* Primary Button Style */
+.btn-gms-primary {
+  background-color: var(--btn-primary-bg);
+  color: #ffffff;
+}
+
+/* Danger Button Style */
+.btn-gms-danger {
+  background-color: var(--btn-danger-bg);
+  color: #ffffff;
+}
+
+/* Ghost / Secondary Button Style */
+.btn-gms-ghost {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--btn-secondary-border);
+}
+
+.btn-gms-ghost:hover {
+  background-color: #f8fafc;
+  border-color: var(--btn-primary-bg);
+  color: var(--btn-primary-bg);
+}
+
+/* Text-only Primary Style (Ghost-like but primary color) */
+.btn-gms-text-primary {
+  background-color: transparent;
+  color: var(--btn-primary-bg);
   border: none;
 }
 
-.btn-primary {
-  background-color: #2563eb;
-  color: white;
+.btn-gms-text-primary:hover {
+  background-color: rgba(37, 99, 235, 0.05);
 }
 
-.btn-secondary {
-  background-color: #f1f5f9;
-  color: #475569;
-}
-
-.btn-danger {
-  background-color: #ef4444;
-  color: white;
+/* Global Reset for all buttons in the project */
+button {
+  box-shadow: none !important;
+  text-shadow: none !important;
 }
 
 .badge {
@@ -37,6 +109,7 @@
 }
 
 .section-spacing {
-  margin-top: 40px;
-  margin-bottom: 40px;
+  margin-top: 48px;
+  margin-bottom: 48px;
 }
+

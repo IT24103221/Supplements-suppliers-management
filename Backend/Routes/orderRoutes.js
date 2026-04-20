@@ -8,6 +8,9 @@ router.post("/", orderController.createOrder);
 // Update Order Status
 router.patch("/:orderId", orderController.updateOrderStatus);
 
+// Get all orders (for admin report)
+router.get("/all", orderController.getAllOrders);
+
 // Get Order by ID
 router.get("/:id", orderController.getOrderById);
 

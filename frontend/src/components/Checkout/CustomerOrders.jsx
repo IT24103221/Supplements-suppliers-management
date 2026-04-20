@@ -3,7 +3,7 @@ import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import Nav from "../Nav/Nav";
 import toast from "react-hot-toast";
-import { Trash2 } from "lucide-react";
+import { Trash2, Package } from "lucide-react";
 import "./CustomerOrders.css";
 
 const CustomerOrders = () => {
@@ -75,7 +75,9 @@ const CustomerOrders = () => {
           </div>
         ) : orders.length === 0 ? (
           <div className="orders-empty">
-            <div className="empty-icon">📦</div>
+            <div className="empty-icon">
+              <Package size={64} strokeWidth={1} color="#64748b" />
+            </div>
             <h2>No orders yet</h2>
             <p>You haven't placed any orders yet. Start shopping to see them here!</p>
           </div>
@@ -109,11 +111,12 @@ const CustomerOrders = () => {
                     </td>
                     <td className="text-center">
                       <div className="action-cell">
-                        <button className="btn btn-secondary" onClick={() => setSelectedOrder(order)}>
+                        <button className="btn-gms btn-gms-ghost" onClick={() => setSelectedOrder(order)}>
                           View Details
                         </button>
-                        <button className="btn btn-danger" onClick={() => handleDeleteOrder(order._id)} title="Clear order from view">
+                        <button className="btn-gms btn-gms-danger" onClick={() => handleDeleteOrder(order._id)}>
                           <Trash2 size={16} />
+                          Delete
                         </button>
                       </div>
                     </td>
@@ -166,7 +169,7 @@ const CustomerOrders = () => {
                   {selectedOrder.items?.map((item, idx) => (
                     <div key={idx} className="detail-item">
                       <div className="item-img-sm">
-                        {item.photoUrl ? <img src={item.photoUrl} alt={item.name} /> : <span>💊</span>}
+                        {item.photoUrl ? <img src={item.photoUrl} alt={item.name} /> : <Package size={24} color="#94a3b8" />}
                       </div>
                       <div className="item-info">
                         <p className="item-name">{item.name || item.supplementName || item.supplementProduct || 'N/A'}</p>

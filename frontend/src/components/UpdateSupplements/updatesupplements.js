@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
 
 import Nav from "../Nav/Nav";
 import "./UpdateSupplements.css";
@@ -42,6 +43,7 @@ function toDateInputValue(dateLike) {
 function UpdateSupplements() {
   const { id } = useParams(); // Extract supplement ID from URL
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Component state management
   const [loading, setLoading] = useState(true);
@@ -56,7 +58,12 @@ function UpdateSupplements() {
     weightUnit: "mg",
     expiryDate: "",
     description: "",
+    supplierId: "",
+    supplierName: "",
   });
+
+  // Role check
+  const isAdmin = user?.role === "admin";
 
   // Photo state (file for upload, preview for UI, current for existing image)
   const [photoFile, setPhotoFile] = useState(null);
@@ -105,6 +112,8 @@ function UpdateSupplements() {
           weightUnit: weightUnit,
           expiryDate: toDateInputValue(s?.expiryDate),
           description: s?.description ?? "",
+          supplierId: s?.supplierId?._id || s?.supplierId || "",
+          supplierName: s?.supplierId?.name || "Unknown",
         });
         setCurrentPhotoUrl(s?.photoUrl ?? "");
       } catch (e) {
@@ -246,7 +255,10 @@ function UpdateSupplements() {
       if (photoFile) formData.append("photo", photoFile);
 
       await axios.put(`${SUPPLEMENTS_URL}/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          "x-user-role": user?.role || "" 
+        },
       });
 
       toast.success("Supplement updated successfully!");
@@ -318,8 +330,28 @@ function UpdateSupplements() {
             {errors.price && <p className="error-msg">{errors.price}</p>}
 
             <label>Quantity:</label>
-            <input type="text" name="quantity" onChange={handleChange} value={input.quantity} placeholder="e.g. 10" />
+            <input 
+              type="text" 
+              name="quantity" 
+              onChange={handleChange} 
+              value={input.quantity} 
+              placeholder="e.g. 10" 
+              readOnly={isAdmin}
+              className={isAdmin ? "locked-field" : ""}
+            />
             {errors.quantity && <p className="error-msg">{errors.quantity}</p>}
+
+            {isAdmin && (
+              <>
+                <label>Supplier Information:</label>
+                <input 
+                  type="text" 
+                  value={`${input.supplierName} (ID: ${input.supplierId})`}
+                  readOnly 
+                  className="locked-field"
+                />
+              </>
+            )}
 
             {/* --- Specifications Section (Weight & Expiry) --- */}
             <label>Weight:</label>

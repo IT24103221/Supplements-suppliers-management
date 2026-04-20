@@ -97,7 +97,7 @@
 .status-pill {
   display: inline-block;
   padding: 6px 14px;
-  border-radius: 20px;
+  border-radius: 12px; /* Matches the new button radius */
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -121,7 +121,7 @@
 }
 
 .status-pill.cancelled {
-  background-color: #dc2626; /* Red */
+  background-color: #e11d48; /* Vibrant Red to match Delete button */
 }
 
 .orders-table .text-center {
@@ -135,10 +135,11 @@
   gap: 12px;
 }
 
-.action-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.action-cell .btn-gms {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 13px;
 }
 
 .btn-view-details {

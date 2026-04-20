@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Nav from '../Nav/Nav'
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { Trash2, Edit } from "lucide-react";
 import './suppliersdetails.css';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -280,7 +281,7 @@ function SuppliersDetails() {
             onChange={(e) => setSearch(e.target.value)}
           />
           <div className="topbar-buttons">
-            <button className="btn-report" onClick={generatePDF}>
+            <button className="btn-gms btn-report-solid" onClick={generatePDF}>
               <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
@@ -290,8 +291,8 @@ function SuppliersDetails() {
               </svg>
               Generate Report
             </button>
-            <Link to="/addsuppliers">
-              <button className="add-supplier-btn">+ Add Supplier</button>
+            <Link to="/addsuppliers" className="btn-gms btn-gms-primary">
+              + Add Supplier
             </Link>
           </div>
         </div>
@@ -356,24 +357,21 @@ function SuppliersDetails() {
                     <Link
                       to={`/updatesuppliers/${supplier._id}`}
                       onClick={(e) => e.stopPropagation()}
+                      className="btn-gms btn-gms-text-primary"
                     >
-                      <button
-                        className="btn-update"
-                        onClick={(e) => e.stopPropagation()}
-                        type="button"
-                      >
+                        <Edit size={16} />
                         Update
-                      </button>
                     </Link>
 
                     <button
-                      className="btn-delete"
+                      className="btn-gms btn-gms-danger"
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteHandler(supplier._id);
                       }}
                     >
+                      <Trash2 size={16} />
                       Delete
                     </button>
                   </div>

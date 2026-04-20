@@ -1,41 +1,48 @@
 .checkout-page {
-  padding-top: 80px;
+  padding-top: 0; /* Remove top padding since Navbar is pinned */
   min-height: 100vh;
   background-color: #f8fafc;
 }
 
 .checkout-container {
-  max-width: 1200px;
+  max-width: 1000px; /* More compact overall width */
   margin: 0 auto;
   padding: 40px 20px;
 }
 
 .checkout-grid {
   display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 40px;
+  grid-template-columns: 1fr 380px; /* Balanced side-by-side */
+  gap: 30px;
+  align-items: start;
 }
 
 .shipping-info, .order-summary-sidebar {
   background-color: white;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  border-radius: 12px; /* Standardized 12px border-radius */
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.shipping-info {
+  max-width: 600px; /* Fixed max-width for the form container */
 }
 
 .shipping-info h2, .order-summary-sidebar h2 {
-  font-size: 1.5rem;
-  margin-bottom: 24px;
+  font-size: 1.25rem;
+  margin-bottom: 20px;
   color: #1e293b;
+  font-weight: 700;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .form-row {
   display: flex;
-  gap: 20px;
+  gap: 16px;
 }
 
 .form-row .form-group {
@@ -44,105 +51,100 @@
 
 label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-weight: 600;
-  color: #475569;
+  color: #64748b;
+  font-size: 0.875rem; /* Slightly smaller professional font */
 }
 
 input[type="text"] {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #e2e8f0;
+  padding: 10px 14px; /* Slightly reduced height */
+  border: 1px solid #e2e8f0; /* Subtle border color */
   border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  font-size: 0.9375rem;
+  color: #1e293b;
+  transition: all 0.2s;
 }
 
 input[type="text"]:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .payment-method-section {
-  margin-top: 40px;
+  margin-top: 32px;
 }
 
 .payment-options {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* space-y-3 equivalent */
+  gap: 10px;
 }
 
 .payment-option-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px; /* p-4 equivalent */
-  border: 1px solid #e2e8f0; /* border-gray-200 */
-  border-radius: 12px; /* rounded-xl equivalent */
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
   background-color: white;
 }
 
 .payment-option-card:hover {
-  background-color: #f8fafc; /* hover:bg-gray-50 */
+  background-color: #f8fafc;
   border-color: #cbd5e1;
 }
 
 .payment-option-card.active {
-  border-color: #2563eb; /* border-blue-600 */
-  background-color: #eff6ff; /* bg-blue-50 */
-  box-shadow: 0 0 0 1px #2563eb;
+  border-color: #2563eb;
+  background-color: #f0f7ff;
 }
 
 .payment-option-card input[type="radio"] {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
 }
 
 .payment-option-content {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between; /* Space out label and icons */
   flex: 1;
 }
 
 .payment-logos-group {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background-color: white;
-  padding: 4px 8px;
-  border: 1px solid #f1f5f9;
-  border-radius: 8px;
+  gap: 6px;
+  background-color: transparent;
+  padding: 0;
+  border: none;
 }
 
 .gateway-logo {
-  height: 32px;
-  width: auto;
+  height: 20px; /* Fixed height for uniformity */
+  width: 32px; /* Fixed width for symmetry */
   object-fit: contain;
 }
 
 .cod-icon {
-  font-size: 24px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none; /* Removed COD icon as requested */
 }
 
 .method-label {
   font-weight: 600;
-  color: #1e293b;
-  font-size: 1rem;
+  color: #334155;
+  font-size: 0.9375rem;
 }
 
 input[type="text"].input-error {
-  border-color: #ef4444; /* border-red-500 */
+  border-color: #ef4444;
 }
 
 .error-msg {
@@ -154,20 +156,20 @@ input[type="text"].input-error {
 
 .place-order-btn {
   width: 100%;
-  margin-top: 40px;
-  padding: 16px;
-  background-color: #3b82f6;
+  margin-top: 32px;
+  padding: 14px;
+  background-color: #2563eb;
   color: white;
   border: none;
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .place-order-btn:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: #1d4ed8;
 }
 
 .place-order-btn:disabled {
@@ -185,58 +187,67 @@ input[type="text"].input-error {
 .summary-items {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #e2e8f0;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .summary-item {
   display: flex;
   justify-content: space-between;
   color: #64748b;
+  font-size: 0.875rem;
 }
 
 .summary-item-wrapper {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .summary-divider {
-  height: 1px;
-  background-color: #e2e8f0;
-  margin: 16px 0;
+  display: none;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 12px;
-  color: #64748b;
+  margin-bottom: 10px;
+  color: #475569;
   font-weight: 500;
+  font-size: 0.9375rem;
 }
 
 .free-shipping-text {
-  color: #16a34a;
-  font-weight: 900;
+  color: #10b981;
+  font-weight: 700;
 }
 
 .summary-total {
   display: flex;
   justify-content: space-between;
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #064e3b; /* Dark green */
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
   padding-top: 16px;
-  border-top: 2px dashed #e2e8f0;
+  border-top: 1px solid #f1f5f9;
 }
 
 @media (max-width: 968px) {
+  .checkout-container {
+    padding-top: 20px;
+  }
   .checkout-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   
+  .shipping-info {
+    max-width: 100%;
+  }
+
   .order-summary-sidebar {
     position: static;
     order: -1;
   }
 }
+

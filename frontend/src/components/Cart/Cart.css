@@ -14,7 +14,7 @@
 .cart-container {
   max-width: 1200px;
   margin: 40px auto;
-  padding: 24px;
+  padding: 32px;
 }
 
 .cart-container h1 {
@@ -27,31 +27,30 @@
 .cart-content {
   display: grid;
   grid-template-columns: 1fr 380px;
-  gap: 32px;
+  gap: 36px;
 }
 
 .cart-items-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .cart-item-card {
   background: var(--gms-surface);
-  padding: 20px;
-  border-radius: 20px;
+  padding: 24px;
+  border-radius: 24px;
   border: 1px solid var(--gms-border);
   display: grid;
   grid-template-columns: 100px 1fr 140px 120px 100px;
   align-items: center;
-  gap: 24px;
-  transition: transform 0.2s ease;
+  gap: 28px;
 }
 
 .cart-item-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   justify-content: flex-end;
 }
 
@@ -64,18 +63,15 @@
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
   white-space: nowrap;
 }
 
 .buy-this-item-btn:hover {
   filter: brightness(1.1);
-  transform: translateY(-1px);
 }
 
 .cart-item-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 18px 25px -8px rgba(0, 0, 0, 0.1);
 }
 
 .cart-item-image {
@@ -124,7 +120,7 @@
   align-items: center;
   gap: 12px;
   background: #f8fafc;
-  padding: 8px;
+  padding: 10px;
   border-radius: 12px;
   border: 1px solid var(--gms-border);
 }
@@ -169,14 +165,14 @@
 
 .cart-summary-card {
   background: var(--gms-surface);
-  padding: 32px;
+  padding: 36px;
   border-radius: 24px;
   border: 1px solid var(--gms-border);
   height: fit-content;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+  gap: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
 }
 
 .cart-summary-card h2 {
@@ -216,14 +212,11 @@
   font-size: 18px;
   font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s;
   margin-top: 12px;
 }
 
 .checkout-btn:hover {
   background: #be123c;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(225, 29, 72, 0.3);
 }
 
 .clear-cart-btn {

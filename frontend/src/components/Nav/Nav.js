@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "./Nav.css";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 
 function Nav() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
 
@@ -16,6 +17,9 @@ function Nav() {
   const isUser = user?.role === "user";
   const isSupplier = user?.role === "supplier";
   const isApprovedSupplier = isSupplier && user?.status === "Approved";
+
+  // Check if current route is the Home Page (either "/" or "/mainhome")
+  const isHomePage = location.pathname === "/mainhome" || location.pathname === "/";
 
   useEffect(() => {
     let alive = true;
@@ -46,7 +50,7 @@ function Nav() {
   }, [isAdmin]);
 
   return (
-    <div>
+    <nav style={{ margin: 0, padding: 0, width: '100%' }}>
       <ul className="home-ul">
         <li className="home-1l">
           <Link to="/mainhome" className="nav-link">
@@ -54,16 +58,18 @@ function Nav() {
           </Link>
         </li>
         
-        {/* Auth Specific Links */}
-        {user ? (
-          <>
-            {/* Store link only after login */}
-            <li className="home-1l">
-              <Link to="/supplementsdetails" className="nav-link">
-                <h1>supplements store</h1>
-              </Link>
-            </li>
+        {/* Only show Store link if logged in AND NOT on the Home Page */}
+        {user && !isHomePage && (
+          <li className="home-1l">
+            <Link to="/supplementsdetails" className="nav-link">
+              <h1>Supplements Store</h1>
+            </Link>
+          </li>
+        )}
 
+        {/* Auth Specific Links */}
+        {user && (
+          <>
             {isSupplier && (
               <>
                 <li className="home-1l">
@@ -87,6 +93,11 @@ function Nav() {
                   </Link>
                 </li>
                 <li className="home-1l">
+                  <Link to="/admin-dashboard" className="nav-link">
+                    <h1>Admin Panel</h1>
+                  </Link>
+                </li>
+                <li className="home-1l">
                   <Link to="/pending-requests" className="nav-link">
                     <h1>
                       Pending Requests
@@ -101,10 +112,7 @@ function Nav() {
               <>
                 <li className="home-1l">
                   <Link to="/cart" className="nav-link">
-                    <h1>
-                      Cart
-                      {cartCount > 0 && <span className="nav-badge">{cartCount}</span>}
-                    </h1>
+                    <h1>Cart</h1>
                   </Link>
                 </li>
                 <li className="home-1l">
@@ -121,28 +129,15 @@ function Nav() {
               </button>
             </li>
           </>
-        ) : (
-          <li className="home-1l">
-            <Link to="/login" className="nav-link">
-              <h1>Login</h1>
-            </Link>
-          </li>
         )}
 
-        {/* Global/Public Links (Removed Store from here as it's now in Auth section) */}
-
-        {/* Only Approved Suppliers can see Add Supplement */}
-        {isApprovedSupplier && (
-          <li className="home-1l">
-            <Link to="/addsupplements" className="nav-link">
-              <h1>ADD supplements</h1>
-            </Link>
-          </li>
-        )}
-
-        {/* Public Supplier Actions (Hide if already logged in) */}
         {!user && (
           <>
+            <li className="home-1l">
+              <Link to="/login" className="nav-link">
+                <h1>Login</h1>
+              </Link>
+            </li>
             <li className="home-1l">
               <Link to="/supplier-register" className="nav-link">
                 <h1>Supplier Registration</h1>
@@ -151,7 +146,7 @@ function Nav() {
           </>
         )}
       </ul>
-    </div>
+    </nav>
   );
 }
 

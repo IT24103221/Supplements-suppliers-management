@@ -17,6 +17,7 @@ const WebXpayMock = () => {
     cardName: "",
   });
   const [errors, setErrors] = useState({});
+  const [cardType, setCardType] = useState(null); // 'visa' or 'mastercard' or null
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -43,17 +44,44 @@ const WebXpayMock = () => {
       const digits = value.replace(/\D/g, "").slice(0, 16);
       formattedValue = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
       if (value && !/^\d[\d\s]*$/.test(value)) error = "Only numbers allowed";
+
+      // Real-time Card Detection
+      if (digits.startsWith("4")) {
+        setCardType("visa");
+      } else if (/^(51|52|53|54|55)/.test(digits)) {
+        setCardType("mastercard");
+      } else {
+        setCardType(null);
+      }
     }
 
     // Expiry: MM/YY format, max 5 chars
     if (name === "expiry") {
       const digits = value.replace(/\D/g, "").slice(0, 4);
+      
+      // Formatting
       if (digits.length >= 2) {
         formattedValue = digits.slice(0, 2) + "/" + digits.slice(2, 4);
       } else {
         formattedValue = digits;
       }
-      if (value && !/^\d[\d/]*$/.test(value)) error = "Only numbers allowed";
+
+      // Real-world Expiry Validation
+      if (digits.length === 4) {
+        const month = parseInt(digits.slice(0, 2));
+        const year = parseInt("20" + digits.slice(2, 4));
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        if (month < 1 || month > 12) {
+          error = "Invalid month";
+        } else if (year < currentYear || (year === currentYear && month < currentMonth)) {
+          error = "Card has expired";
+        }
+      }
+      
+      if (value && !/^\d[\d/]*$/.test(value)) error = error || "Only numbers allowed";
     }
 
     // CVV: 3 digits only
@@ -148,8 +176,8 @@ const WebXpayMock = () => {
                     required
                   />
                   <div className="card-icons-group">
-                    <img src="/visa.png.png" alt="Visa" className="gateway-logo" />
-                    <img src="/mastercard.webp.webp" alt="Mastercard" className="gateway-logo" />
+                    <img src="/visa.png.png" alt="Visa" className={`gateway-logo ${cardType && cardType !== 'visa' ? 'dimmed' : ''}`} />
+                    <img src="/mastercard.webp.webp" alt="Mastercard" className={`gateway-logo ${cardType && cardType !== 'mastercard' ? 'dimmed' : ''}`} />
                   </div>
                 </div>
                 {errors.cardNumber && <span className="error-msg">{errors.cardNumber}</span>}

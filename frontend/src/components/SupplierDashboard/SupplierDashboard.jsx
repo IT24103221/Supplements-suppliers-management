@@ -4,6 +4,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import Nav from "../Nav/Nav";
 import "./SupplierDashboard.css";
 import toast from "react-hot-toast";
+import { Bell, User, Plus, Info, AlertTriangle, FileText } from "lucide-react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 /**
  * SupplierDashboard Component
@@ -173,6 +176,86 @@ function SupplierDashboard() {
     return n.toLocaleString();
   };
 
+  /**
+   * Generates a PDF report for the specific supplier's supplements and sales performance.
+   */
+  const generateSupplierReport = () => {
+    try {
+      const doc = new jsPDF();
+      
+      // Add Title
+      doc.setFontSize(20);
+      doc.setTextColor(30, 41, 59);
+      doc.text("Supplier Inventory & Sales Performance", 14, 22);
+      
+      // Add Supplier Info
+      doc.setFontSize(12);
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Supplier: ${supplier?.name || "N/A"}`, 14, 32);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 38);
+
+      // Performance Summary
+      const totalStock = supplements.reduce((acc, s) => acc + (s.availableStock || 0), 0);
+      const totalSalesCount = notifications.filter(n => n.type === 'order_notification' && n.shipmentStatus === 'Shipped').length;
+      
+      doc.setFontSize(10);
+      doc.text(`Total Supplements Managed: ${supplements.length}`, 14, 48);
+      doc.text(`Total Stock Available: ${totalStock}`, 14, 53);
+      doc.text(`Orders Successfully Shipped: ${totalSalesCount}`, 14, 58);
+
+      // Inventory Table
+      const tableColumn = ["#", "Supplement Name", "Category", "Stock Status", "Price (Rs.)"];
+      const tableRows = supplements.map((s, index) => [
+        index + 1,
+        s.supplementName || "N/A",
+        s.category || "N/A",
+        s.availableStock <= 5 ? `Low (${s.availableStock})` : `In Stock (${s.availableStock})`,
+        formatPrice(s.price || 0)
+      ]);
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 65,
+        theme: "striped",
+        headStyles: { fillColor: [37, 99, 235], textColor: 255 },
+        styles: { fontSize: 9 }
+      });
+
+      // Sales Performance Table (Recent Orders)
+      const salesColumn = ["Date", "Product", "Qty", "Buyer", "Status"];
+      const recentSales = notifications
+        .filter(n => n.type === 'order_notification')
+        .slice(0, 10)
+        .map(n => [
+          new Date(n.createdAt).toLocaleDateString(),
+          n.relatedSupplementId?.supplementName || "N/A",
+          n.quantity || 0,
+          n.buyerName || "N/A",
+          n.shipmentStatus || "Pending"
+        ]);
+
+      if (recentSales.length > 0) {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.text("Recent Sales Performance (Last 10 Orders)", 14, 22);
+        autoTable(doc, {
+          head: [salesColumn],
+          body: recentSales,
+          startY: 30,
+          theme: "grid",
+          headStyles: { fillColor: [16, 185, 129] } // Emerald-500
+        });
+      }
+
+      doc.save(`${supplier?.name || "Supplier"}_Performance_Report.pdf`);
+      toast.success("Supplier performance report generated!");
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      toast.error("Failed to generate report.");
+    }
+  };
+
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
@@ -187,10 +270,7 @@ function SupplierDashboard() {
                 <img src={supplier.photoUrl} alt={supplier.name} className="profile-avatar" />
               ) : (
                 <div className="profile-avatar-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
+                  <User size={48} strokeWidth={1.5} color="#94a3b8" />
                 </div>
               )}
             </div>
@@ -208,89 +288,20 @@ function SupplierDashboard() {
             </div>
           </div>
           <div className="header-actions">
-            <div className="notification-bell-wrapper">
-              <button className="notification-bell" onClick={() => setShowNotifications(!showNotifications)}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-                </svg>
-                {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
-              </button>
-              {showNotifications && (
-                <div className="notifications-panel">
-                  <div className="notifications-header">
-                    <h3>Notifications</h3>
-                  </div>
-                  <div className="notifications-list">
-                    {notifications.filter(n => !n.isRead).length === 0 ? (
-                      <div className="no-notifications">No new notifications.</div>
-                    ) : (
-                      notifications.filter(n => !n.isRead).map(n => (
-                        <div key={n._id} className={`notification-item unread type-${n.type}`}>
-                          <div className="notification-main" onClick={() => handleNotificationClick(n)}>
-                            <p className="notification-msg">{n.message}</p>
-                            {n.type === 'order_notification' && (
-                              <div className="order-brief">
-                                <p><strong>Buyer:</strong> {n.buyerName}</p>
-                                <p><strong>Address:</strong> {n.buyerAddress}</p>
-                                <p><strong>Qty:</strong> {n.quantity}</p>
-                                <p><strong>Status:</strong> <span className={`ship-status ${n.shipmentStatus?.toLowerCase().replace(' ', '-')}`}>{n.shipmentStatus}</span></p>
-                              </div>
-                            )}
-                            <small className="notification-time">{new Date(n.createdAt).toLocaleString()}</small>
-                          </div>
-                          
-                          <div className="notification-actions">
-                            {n.type === 'restock_request' && <span className="view-action" onClick={() => handleNotificationClick(n)}>View</span>}
-                            {n.type === 'order_notification' && n.shipmentStatus === 'Pending Dispatch' && (
-                              <>
-                                <button 
-                                  className="confirm-btn-action"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleShipmentUpdate(n._id, 'Confirmed');
-                                  }}
-                                >
-                                  Confirm
-                                </button>
-                                <button 
-                                  className="ship-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleShipmentUpdate(n._id, 'Shipped');
-                                  }}
-                                >
-                                  Ship
-                                </button>
-                              </>
-                            )}
-                            {n.type === 'order_notification' && n.shipmentStatus === 'Confirmed' && (
-                              <button 
-                                className="ship-btn"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleShipmentUpdate(n._id, 'Shipped');
-                                }}
-                              >
-                                Mark as Shipped
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <div className="notifications-footer">
-                    <Link to="/notifications" className="view-all-link">View All Notifications</Link>
-                  </div>
-                </div>
-              )}
-            </div>
+            <button 
+              className="btn-gms btn-report-solid" 
+              onClick={generateSupplierReport}
+            >
+              <FileText size={18} />
+              Generate Report
+            </button>
+
             {isApproved ? (
               <button 
-                className="add-new-btn" 
+                className="btn-gms btn-gms-primary add-new-btn" 
                 onClick={() => navigate(`/addsupplements?supplierId=${finalId}`)}
               >
-                + Add New Supplement
+                <Plus size={20} strokeWidth={3} /> Add New Supplement
               </button>
             ) : (
               <div className="review-feedback-badge">
@@ -334,7 +345,9 @@ function SupplierDashboard() {
                         {s.status || "Pending"}
                       </span>
                       {s.availableStock === 0 && (
-                        <span className="restock-badge">Needs Restock</span>
+                        <span className="restock-badge flex items-center gap-1">
+                          <AlertTriangle size={12} /> Needs Restock
+                        </span>
                       )}
                     </div>
                   </div>

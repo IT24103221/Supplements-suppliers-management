@@ -2,6 +2,7 @@ import React from "react";
 import Nav from "../Nav/Nav";
 import { useCart } from "../../context/CartContext";
 import { useNavigate } from "react-router-dom";
+import { ShoppingCart } from "lucide-react";
 import "./Cart.css";
 
 function Cart() {
@@ -31,7 +32,9 @@ function Cart() {
         
         {cartItems.length === 0 ? (
           <div className="empty-cart">
-            <div className="empty-cart-icon">🛒</div>
+            <div className="empty-cart-icon">
+              <ShoppingCart size={64} strokeWidth={1} color="#64748b" />
+            </div>
             <h2>Your cart is empty</h2>
             <p>Looks like you haven't added anything to your cart yet.</p>
             <button className="continue-shopping" onClick={() => navigate("/supplementsdetails")}>

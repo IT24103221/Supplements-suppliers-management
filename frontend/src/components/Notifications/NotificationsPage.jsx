@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Trash2 } from "lucide-react";
+import { Trash2, Bell, AlertTriangle, Info, CheckCircle } from "lucide-react";
 import Nav from "../Nav/Nav";
 import "./NotificationsPage.css";
 
@@ -172,12 +172,20 @@ const NotificationsPage = () => {
         <div className="notification-card-header">
           <div className="header-left">
             <span className={`badge type-badge ${n.type}`}>
-              {n.type === 'order_notification' ? '✅ New Order Received' : '📢 Restock Request'}
+              {n.type === 'order_notification' ? (
+                <span className="flex items-center gap-2">
+                  <CheckCircle size={14} /> New Order Received
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <AlertTriangle size={14} /> Restock Request
+                </span>
+              )}
             </span>
           </div>
-          <button className="btn btn-danger" onClick={(e) => handleDelete(e, n.isGrouped ? n.ids : n._id)} title="Delete notification">
-            <Trash2 size={18} />
-          </button>
+          <div className="header-right">
+            {/* Notification ID or other info can go here */}
+          </div>
         </div>
         
         <div className={`notification-card-content ${isInventory ? 'inventory-layout' : ''}`}>
@@ -194,7 +202,7 @@ const NotificationsPage = () => {
                 </div>
                 <div className="inventory-actions">
                   <button 
-                    className="btn btn-primary btn-compact"
+                    className="btn-gms btn-gms-primary"
                     onClick={() => {
                       setSelectedNotification(n);
                       setIsRestockModalOpen(true);
@@ -207,7 +215,9 @@ const NotificationsPage = () => {
             ) : (
               <>
                 <div className="title-row">
-                  <span className="icon-check">✔️</span>
+                  <span className="icon-check">
+                    <CheckCircle size={18} color="#16a34a" />
+                  </span>
                   <h3>{n.message}</h3>
                 </div>
                 <div className="product-details">
@@ -243,6 +253,13 @@ const NotificationsPage = () => {
                   Mark as Shipped
                 </button>
               )}
+              <button 
+                className="btn-gms btn-gms-danger" 
+                onClick={(e) => handleDelete(e, n.isGrouped ? n.ids : n._id)}
+              >
+                <Trash2 size={16} />
+                Delete
+              </button>
             </div>
           </div>
         </div>
@@ -261,11 +278,11 @@ const NotificationsPage = () => {
         <div className="notifications-tabs">
           <button className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
             Orders Received
-            {unreadOrderCount > 0 && <span className="tab-badge">🔴 {unreadOrderCount}</span>}
+            {unreadOrderCount > 0 && <span className="tab-badge flex items-center gap-1"><Info size={12} /> {unreadOrderCount}</span>}
           </button>
           <button className={`tab-btn ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>
             Inventory Alerts
-            {unreadInventoryCount > 0 && <span className="tab-badge">🔴 {unreadInventoryCount}</span>}
+            {unreadInventoryCount > 0 && <span className="tab-badge flex items-center gap-1"><AlertTriangle size={12} /> {unreadInventoryCount}</span>}
           </button>
         </div>
 
@@ -276,7 +293,9 @@ const NotificationsPage = () => {
           </div>
         ) : filteredNotifications.length === 0 ? (
           <div className="empty-state-centered">
-            <div className="empty-icon-large">🔔</div>
+            <div className="empty-icon-large">
+              <Bell size={64} strokeWidth={1} color="#64748b" />
+            </div>
             <h2>You're all caught up!</h2>
             <p>No new {activeTab === 'orders' ? 'orders' : 'inventory alerts'} at the moment.</p>
           </div>

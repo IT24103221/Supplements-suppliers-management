@@ -6,6 +6,9 @@ import "./supplementsdetails.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
+import { AlertTriangle, Info, Trash2, Edit, ShoppingCart, Bell, Package, List, Zap, ExternalLink, FileText } from "lucide-react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import "../SuppliersDetails/suppliersdetails.css";
 
@@ -30,14 +33,15 @@ function SupplementsDetails() {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const [supplements, setSupplements] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [notifying, setNotifying] = useState(null); // Track which supplement is being notified
   const [notifiedItems, setNotifiedItems] = useState([]); // Track which items have been notified in this session
 
   // Session state for permission checks
-  const currentUserId = localStorage.getItem("supplierId");
+  const currentUserId = user?.id || localStorage.getItem("supplierId");
   const userRole = user?.role || localStorage.getItem("userRole");
-  const isAdmin = userRole === "admin" || localStorage.getItem("isAdmin") === "true";
+  const isAdmin = userRole === "admin";
 
   /**
    * Fetches all approved supplements from the backend.
@@ -107,6 +111,56 @@ function SupplementsDetails() {
   };
 
   /**
+   * Generates a PDF report of all current supplements.
+   */
+  const generateSupplementReport = () => {
+    try {
+      const doc = new jsPDF();
+      
+      // Add Title
+      doc.setFontSize(20);
+      doc.setTextColor(30, 41, 59); // Slate-800
+      doc.text("Supplements Inventory Report", 14, 22);
+      
+      // Add Timestamp
+      doc.setFontSize(10);
+      doc.setTextColor(100, 116, 139); // Slate-500
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+      doc.text(`Total Supplements: ${supplements.length}`, 14, 35);
+
+      // Table Data
+      const tableColumn = ["#", "Name", "Brand", "Category", "Stock", "Price (Rs.)"];
+      const tableRows = supplements.map((s, index) => [
+        index + 1,
+        s.supplementName || "N/A",
+        s.supplementBrand || "N/A",
+        s.category || "N/A",
+        s.availableStock ?? 0,
+        formatPrice(s.price || 0)
+      ]);
+
+      // Generate Table using explicit autoTable call for better reliability
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 45,
+        theme: "striped",
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" }, // Blue-600
+        alternateRowStyles: { fillColor: [248, 250, 252] }, // Slate-50
+        margin: { top: 45 },
+        styles: { fontSize: 9, cellPadding: 4 }
+      });
+
+      // Save PDF
+      doc.save(`Supplements_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success("Supplement report generated!");
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      toast.error("Failed to generate report.");
+    }
+  };
+
+  /**
    * Filters supplements based on the search query.
    * Matches against Name, Brand, and Category.
    */
@@ -158,6 +212,15 @@ function SupplementsDetails() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          {isAdmin && (
+            <button 
+              className="btn-gms btn-report-solid" 
+              onClick={generateSupplementReport}
+            >
+              <FileText size={18} />
+              Generate Report
+            </button>
+          )}
         </div>
 
         {/* --- Main Store Display --- */}
@@ -197,76 +260,88 @@ function SupplementsDetails() {
                         {/* Title Section */}
                         <Link to={`/supplement/${s._id}`} className="store-card__title-link">
                           <div className="store-card__header">
+                            <span className="store-card__brand">{s.supplementBrand}</span>
                             <h3 className="store-card__name" title={s.supplementName}>
                               {s.supplementName}
                             </h3>
-                            <span className="store-card__brand">{s.supplementBrand}</span>
                           </div>
                         </Link>
 
-                        <div className="store-card__stock-info">
-                          {s.availableStock === 0 ? (
-                            <span className="stock-out-of-stock">OUT OF STOCK</span>
-                          ) : s.availableStock <= 5 ? (
-                            <span className="stock-low-stock">
-                              Only {s.availableStock} left!
-                            </span>
-                          ) : (
-                            <span className="stock-in-stock">In Stock</span>
-                          )}
-                        </div>
-
                         {/* Footer Section (Price & Actions) */}
                         <div className="store-card__footer">
-                          <div className="store-card__price-tag">
-                            <span className="price-currency">Rs.</span>
-                            <span className="price-amount">{formatPrice(s.price)}</span>
+                          <div className="store-card__info-row">
+                            <div className="store-card__stock-info">
+                              {s.availableStock === 0 ? (
+                                <span className="stock-out-of-stock">OUT OF STOCK</span>
+                              ) : s.availableStock <= 5 ? (
+                                <span className="stock-low-stock">Only {s.availableStock} left!</span>
+                              ) : (
+                                <span className="stock-in-stock">In Stock</span>
+                              )}
+                            </div>
+
+                            <div className="store-card__price-tag">
+                              <span className="price-currency">Rs.</span>
+                              <span className="price-amount">{formatPrice(s.price)}</span>
+                            </div>
                           </div>
+                          
                           <div className="store-card__actions">
                             {/* --- Customer View --- */}
                             {userRole === 'user' && (
-                              <button
-                                type="button"
-                                className={`store-card__btn store-card__btn--cart ${s.availableStock === 0 ? 'disabled' : ''}`}
-                                onClick={() => addToCart(s)}
-                                disabled={s.availableStock === 0}
-                              >
-                                {s.availableStock > 0 ? "Add to Cart" : "Out of Stock"}
-                              </button>
+                              <div className="store-card__btn-grid">
+                                <button
+                                  type="button"
+                                  className={`btn-gms btn-gms-primary ${s.availableStock === 0 ? 'disabled' : ''}`}
+                                  onClick={() => addToCart(s)}
+                                  disabled={s.availableStock === 0}
+                                >
+                                  <ShoppingCart size={18} />
+                                  {s.availableStock > 0 ? "Add to Cart" : "Out of Stock"}
+                                </button>
+                                <Link className="btn-gms btn-gms-text-primary" to={`/supplement/${s._id}`}>
+                                  <ExternalLink size={16} />
+                                  Details
+                                </Link>
+                              </div>
                             )}
 
-                            <Link className="store-card__btn store-card__btn--view" to={`/supplement/${s._id}`}>
-                              Details
-                            </Link>
-                            
                             {/* --- Admin & Supplier View --- */}
-                            {(isAdmin || (currentUserId && s.supplierId === currentUserId)) && (
-                              <>
+                            {(isAdmin || (currentUserId && (s.supplierId === currentUserId || s.supplierId?._id === currentUserId))) && (
+                              <div className="store-card__btn-grid">
                                 {isAdmin && (
                                   <button
                                     type="button"
-                                    className="store-card__btn store-card__btn--delete"
+                                    className="btn-gms btn-gms-danger"
                                     onClick={() => deleteSupplement(s._id)}
                                   >
+                                    <Trash2 size={16} />
                                     Delete
                                   </button>
                                 )}
-                                {isAdmin && s.availableStock === 0 && (
-                                  <button
-                                    type="button"
-                                    className={`store-card__btn store-card__btn--notify ${notifiedItems.includes(s._id) ? 'notified' : ''}`}
-                                    onClick={() => handleNotify(s)}
-                                    disabled={notifying === s._id || notifiedItems.includes(s._id)}
-                                  >
-                                    {notifying === s._id ? "Notifying..." : notifiedItems.includes(s._id) ? "Notified" : "Notify Supplier"}
-                                  </button>
-                                )}
-                                {currentUserId && s.supplierId === currentUserId && (
-                                  <Link to={`/edit-supplement/${s._id}`} className="store-card__btn store-card__btn--edit">
+                                {currentUserId && (s.supplierId === currentUserId || s.supplierId?._id === currentUserId) && (
+                                  <Link to={`/updatesupplements/${s._id}`} className="btn-gms btn-gms-primary">
+                                    <Edit size={16} />
                                     Edit
                                   </Link>
                                 )}
-                              </>
+                                <Link className="btn-gms btn-gms-ghost" to={`/supplement/${s._id}`}>
+                                    <ExternalLink size={16} />
+                                    Details
+                                  </Link>
+                              </div>
+                            )}
+
+                            {isAdmin && s.availableStock === 0 && (
+                              <button
+                                type="button"
+                                className={`btn-gms btn-gms-ghost ${notifiedItems.includes(s._id) ? 'notified' : ''}`}
+                                onClick={() => handleNotify(s)}
+                                disabled={notifying === s._id || notifiedItems.includes(s._id)}
+                              >
+                                <Bell size={16} />
+                                {notifying === s._id ? "Notifying..." : notifiedItems.includes(s._id) ? "Notified" : "Notify Supplier"}
+                              </button>
                             )}
                           </div>
                         </div>

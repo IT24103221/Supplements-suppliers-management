@@ -49,7 +49,6 @@
 }
 
 .back-link:hover {
-  transform: translateX(-4px);
   color: var(--gms-accent);
 }
 
@@ -297,11 +296,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .supplier-info-card:hover {
-  transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
@@ -456,8 +453,6 @@
 
 .buy-now-btn:hover {
   background: #be123c;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(225, 29, 72, 0.3);
 }
 
 .add-to-cart-btn {
@@ -469,8 +464,6 @@
 .add-to-cart-btn:hover {
   background: var(--gms-accent-2);
   color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(37, 99, 235, 0.2);
 }
 
 /* Edit Button Variant */
@@ -481,9 +474,7 @@
 }
 
 .mgmt-btn--edit:hover {
-  transform: translateY(-2px);
   filter: brightness(1.1);
-  box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.3);
 }
 
 /* Delete Button Variant */
@@ -494,9 +485,7 @@
 }
 
 .mgmt-btn--delete:hover {
-  transform: translateY(-2px);
   filter: brightness(1.1);
-  box-shadow: 0 20px 25px -5px rgba(225, 29, 72, 0.3);
 }
 
 .qty-error-text {

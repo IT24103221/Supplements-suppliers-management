@@ -157,11 +157,23 @@ const deleteOrder = async (req, res) => {
     }
 };
 
+// Get all orders (for admin report)
+const getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find().sort({ createdAt: -1 });
+        return res.status(200).json({ orders });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Server error fetching all orders", error: err.message });
+    }
+};
+
 module.exports = {
     createOrder,
     updateOrderStatus,
     getOrderById,
     getOrdersByUserId,
     getOrdersByEmail,
-    deleteOrder
+    deleteOrder,
+    getAllOrders
 };
