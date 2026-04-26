@@ -33,6 +33,12 @@ const Checkout = () => {
     }
   }, [itemsToCheckout, navigate]);
 
+/**
+ * INPUT VALIDATION & SANITIZATION (TECHNICAL VIVA POINT):
+ * Implements real-time input filtering using regular expressions.
+ * This prevents common data entry errors and ensures that 'name' and 'city' 
+ * contain only alphabetical characters, while 'phone' is restricted to exactly 10 digits.
+ */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let error = "";
@@ -66,6 +72,11 @@ const Checkout = () => {
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
+/**
+ * FORM INTEGRITY CHECK:
+ * A computed boolean that determines the eligibility of the 'Place Order' button.
+ * It checks for minimum string lengths, regex matches, and the selection of a payment method.
+ */
   const isFormValid = 
     formData.name.trim().length >= 3 && 
     /^[a-zA-Z\s]+$/.test(formData.name) &&
@@ -76,6 +87,11 @@ const Checkout = () => {
     paymentMethod !== "" &&
     !Object.values(errors).some(x => x);
 
+/**
+ * DYNAMIC SHIPPING CALCULATION (BUSINESS LOGIC):
+ * Implements a tiered shipping fee structure based on the order subtotal.
+ * This encourages higher order values by offering free shipping for premium purchases.
+ */
   const subtotal = itemsToCheckout.reduce((acc, item) => acc + item.price * item.quantity, 0);
   
   let shippingFee = 0;
@@ -91,6 +107,13 @@ const Checkout = () => {
   const isFreeShipping = shippingFee === 0;
   const totalWithShipping = subtotal + shippingFee;
 
+/**
+ * TRANSACTIONAL WORKFLOW (CRITICAL INTEGRATION):
+ * 1. PRE-PAYMENT STOCK VALIDATION: Performs a final check against the DB to prevent overselling.
+ * 2. ORDER OBJECT CONSTRUCTION: Aggregates user details, cart items, and shipping info.
+ * 3. PERSISTENCE: Sends a POST request to create the order in the database.
+ * 4. ROUTING: Redirects to WebXpay gateway for online payments or Success page for COD.
+ */
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
 

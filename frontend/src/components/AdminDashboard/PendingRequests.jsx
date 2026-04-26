@@ -106,9 +106,9 @@ function PendingRequests() {
     <div className="pending-requests-page">
       <Nav />
       <div className="suppliers-container">
-        <div className="title-section">
+        <div className="title-section pending-header-section">
           <h1>Review Pending Requests</h1>
-          <p style={{ color: "var(--gms-muted)", marginTop: 8 }}>
+          <p className="subtitle-text">
             Manage and approve new supplier applications and supplement listings.
           </p>
         </div>
@@ -154,7 +154,7 @@ function PendingRequests() {
                         <td>{s.email}</td>
                         <td>{s.phone}</td>
                         <td>
-                          <button className="btn-update" onClick={() => openReviewModal(s, 'supplier')}>Review</button>
+                          <button className="btn-gms btn-gms-primary btn-review" onClick={() => openReviewModal(s, 'supplier')}>Review</button>
                         </td>
                       </tr>
                     ))}
@@ -183,7 +183,7 @@ function PendingRequests() {
                         <td>Rs. {s.price}</td>
                         <td>{s.supplierId?.name || "Unknown Supplier"}</td>
                         <td>
-                          <button className="btn-update" onClick={() => openReviewModal(s, 'supplement')}>Review</button>
+                          <button className="btn-gms btn-gms-primary btn-review" onClick={() => openReviewModal(s, 'supplement')}>Review</button>
                         </td>
                       </tr>
                     ))}
@@ -284,7 +284,7 @@ function PendingRequests() {
                   onChange={e => setRejectionReason(e.target.value)}
                 />
                 <div className="modal-actions">
-                  <button className="btn-reject-lg" style={{ backgroundColor: '#ef4444', color: 'white' }} onClick={handleReject}>Confirm Rejection</button>
+                  <button className="btn-reject-lg" style={{ backgroundColor: '#e11d48', color: 'white' }} onClick={handleReject}>Confirm Rejection</button>
                   <button className="btn-approve-lg" style={{ backgroundColor: '#f1f5f9', color: '#64748b' }} onClick={() => setShowRejectInput(false)}>Cancel</button>
                 </div>
               </div>

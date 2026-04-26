@@ -26,19 +26,26 @@ function AddSupplements() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Route Guard Logic
+/**
+ * ROUTE GUARD LOGIC:
+ * Ensures that only authenticated users with the 'supplier' role and 'Approved' status 
+ * can access the supplement addition form. Unauthorized users are redirected to the Home Page.
+ */
   React.useEffect(() => {
     const userRole = localStorage.getItem("userRole");
     const supplierStatus = localStorage.getItem("supplierStatus");
 
-    // Must be a supplier and status must be Approved
     if (userRole !== "supplier" || supplierStatus !== "Approved") {
       toast.error("Unauthorized Access: Only Approved Suppliers can add supplements.");
       navigate("/mainhome");
     }
   }, [navigate]);
 
-  // Extract supplierId from URL query parameters OR LocalStorage
+/**
+ * CONTEXT EXTRACTION:
+ * Retrieves the supplier identity from URL parameters or session storage.
+ * This ensures every supplement added is linked to a specific supplier for inventory tracking.
+ */
   const queryParams = new URLSearchParams(location.search);
   const supplierIdFromUrl = queryParams.get("supplierId");
   const supplierIdFromSession = localStorage.getItem("supplierId");
@@ -66,10 +73,12 @@ function AddSupplements() {
   // Today's date in YYYY-MM-DD format (used to restrict the date picker)
   const todayStr = new Date().toISOString().split("T")[0];
 
-  /**
-   * Form validation logic
-   * Checks for required fields and proper data formats.
-   */
+/**
+ * FORM VALIDATION ENGINE:
+ * Performs comprehensive checks on input data including mandatory fields, 
+ * numeric constraints for pricing/quantity, and business logic for expiry dates.
+ * It also validates image file types and sizes before submission.
+ */
   const validate = () => {
     const newErrors = {};
 
@@ -173,10 +182,11 @@ function AddSupplements() {
     };
   }, [photoPreviewUrl]);
 
-  /**
-   * API request function
-   * Packs form data into FormData for multipart upload.
-   */
+/**
+ * DYNAMIC DATA PACKAGING (API INTEGRATION):
+ * Utilizes FormData to handle multipart/form-data requests, allowing both 
+ * text-based product details and binary image files to be sent to the Backend API.
+ */
   const sendRequest = async () => {
     const formData = new FormData();
     formData.append("supplementName", String(input.supplementName));
@@ -202,9 +212,11 @@ function AddSupplements() {
     });
   };
 
-  /**
-   * Form submission handler
-   */
+/**
+ * SUBMISSION HANDLER:
+ * Orchestrates the submission workflow: Validates -> Calls API -> Provides User Feedback -> Navigates.
+ * The supplement is initially saved with a 'Pending' status awaiting Admin approval.
+ */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;

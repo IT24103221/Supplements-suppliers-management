@@ -1,26 +1,34 @@
 import React, { useEffect, useState } from "react";
 import "./Nav.css";
 import axios from "axios";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useCart } from "../../context/CartContext";
 
 function Nav() {
-  const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { cartCount } = useCart();
 
   const [pendingCount, setPendingCount] = useState(0);
 
+/**
+ * AUTHENTICATION & ROLE-BASED ACCESS CONTROL (RBAC):
+ * Determines the current user's role (admin, user, or supplier) and status.
+ * These flags are used throughout the component to conditionally render 
+ * navigation links and administrative features.
+ */
   const isAdmin = user?.role === "admin";
   const isUser = user?.role === "user";
   const isSupplier = user?.role === "supplier";
-  const isApprovedSupplier = isSupplier && user?.status === "Approved";
 
   // Check if current route is the Home Page (either "/" or "/mainhome")
   const isHomePage = location.pathname === "/mainhome" || location.pathname === "/";
 
+/**
+ * PENDING REQUEST MONITOR (ADMIN ONLY):
+ * For Admin users, this effect polls the backend to count pending supplement 
+ * and supplier requests. The result is displayed as a real-time notification 
+ * badge on the 'Pending Requests' link.
+ */
   useEffect(() => {
     let alive = true;
 
@@ -58,7 +66,7 @@ function Nav() {
           </Link>
         </li>
         
-        {/* Only show Store link if logged in AND NOT on the Home Page */}
+        {/* CONDITIONAL NAVIGATION: Supplements Store link is visible only after login and NOT on the Home Page */}
         {user && !isHomePage && (
           <li className="home-1l">
             <Link to="/supplementsdetails" className="nav-link">
@@ -67,9 +75,10 @@ function Nav() {
           </li>
         )}
 
-        {/* Auth Specific Links */}
+        {/* ROLE-SPECIFIC NAVIGATION LINKS */}
         {user && (
           <>
+            {/* Supplier Dashboard & Notifications */}
             {isSupplier && (
               <>
                 <li className="home-1l">
@@ -85,6 +94,7 @@ function Nav() {
               </>
             )}
             
+            {/* Admin Management Links */}
             {isAdmin && (
               <>
                 <li className="home-1l">
@@ -93,21 +103,15 @@ function Nav() {
                   </Link>
                 </li>
                 <li className="home-1l">
-                  <Link to="/admin-dashboard" className="nav-link">
-                    <h1>Admin Panel</h1>
-                  </Link>
-                </li>
-                <li className="home-1l">
-                  <Link to="/pending-requests" className="nav-link">
-                    <h1>
-                      Pending Requests
-                      {pendingCount > 0 && <span className="nav-badge">{pendingCount}</span>}
-                    </h1>
+                  <Link to="/pending-requests" className="nav-link nav-pending-link">
+                    <h1>Pending Requests</h1>
+                    {pendingCount > 0 && <span className="nav-badge">{pendingCount}</span>}
                   </Link>
                 </li>
               </>
             )}
 
+            {/* Regular User (Customer) Links */}
             {isUser && (
               <>
                 <li className="home-1l">

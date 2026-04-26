@@ -135,3 +135,26 @@
   background: #e94560;
   color: white;
 }
+
+/* Professional Notification Badge for Navbar */
+.nav-pending-link {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.nav-badge {
+  background-color: #e94560; /* Red badge to match the system's danger/accent color */
+  color: white;
+  font-size: 11px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Perfect circular badge */
+  box-shadow: 0 4px 8px rgba(233, 69, 96, 0.4);
+  padding: 0 4px;
+}

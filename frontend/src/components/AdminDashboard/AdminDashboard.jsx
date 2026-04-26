@@ -29,6 +29,12 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
 
+/**
+ * DASHBOARD DATA AGGREGATION:
+ * Simultaneously fetches pending supplement requests and order history.
+ * This multi-source data fetch provides a comprehensive overview of the 
+ * system's operational status for Admin users.
+ */
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -45,11 +51,13 @@ function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchDashboardData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+/**
+ * FINANCIAL REPORTING LOGIC (SALES REPORT):
+ * Generates a PDF report focused on revenue and payment statuses.
+ * 1. DATE-BASED FILTERING: Allows Admins to specify a timeframe for the report.
+ * 2. REVENUE METRICS: Calculates total turnover and payment success rates.
+ * 3. EXPORT: Uses 'jspdf-autotable' to create a professional transaction log.
+ */
   const generatePaymentReport = () => {
     try {
       let filteredOrders = orders;
@@ -100,6 +108,11 @@ function AdminDashboard() {
     }
   };
 
+/**
+ * SUPPLEMENT APPROVAL ACTION:
+ * Finalizes the 'Pending' -> 'Approved' transition for a supplement.
+ * Once approved, the item becomes visible to customers in the store catalog.
+ */
   const approveHandler = async (id) => {
     try {
       await axios.patch(`${SUPPLEMENTS_URL}/approve/${id}`, {}, {

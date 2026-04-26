@@ -41,7 +41,12 @@ function SuppliersDetails() {
     }
   }
 
-  // Approve a pending request then refresh the lists
+/**
+ * SUPPLIER APPROVAL WORKFLOW (VIVA KEY POINT):
+ * Transitions a supplier from 'Pending' to 'Approved' status.
+ * This authorization step is critical as only Approved suppliers can contribute
+ * to the store inventory. The 'x-user-role' header ensures only Admins can execute this.
+ */
   const approveHandler = async (id) => {
     try {
       await axios.patch(`${URL}/approve/${id}`, {}, {
@@ -55,6 +60,12 @@ function SuppliersDetails() {
     }
   };
 
+/**
+ * REJECTION & CLEANUP LOGIC:
+ * Handles the denial of supplier registrations. Rejected requests are 
+ * purged from the system to maintain data integrity and keep the 
+ * pending requests queue manageable.
+ */
   const rejectHandler = async (id) => {
     try {
       await axios.patch(`${URL}/${id}/reject`, {}, {
@@ -68,20 +79,15 @@ function SuppliersDetails() {
     }
   };
 
-  // Search supports all user-visible supplier fields
-  const filteredSuppliers = suppliers.filter((supplier) =>
-    supplier.name.toLowerCase().includes(search.toLowerCase()) ||
-    supplier.email.toLowerCase().includes(search.toLowerCase()) ||
-    supplier.phone.toLowerCase().includes(search.toLowerCase()) ||
-    supplier.address.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Split lists by approval status (defensive defaults avoid undefined errors)
-  const approvedSuppliers = filteredSuppliers.filter(
-    (s) => (s.status || "Approved") === "Approved"
-  );
-
-  // ===== PDF REPORT GENERATOR =====
+/**
+ * BUSINESS INTELLIGENCE REPORTING (SUPPLIERS):
+ * Generates a high-fidelity PDF report of the supplier network.
+ * Features include: 
+ * 1. Branded Header with automated timestamps.
+ * 2. Statistical Summary (Total Count, Latest Addition).
+ * 3. Categorized Tabular Data using 'jspdf-autotable'.
+ * 4. Dynamic Filtering - includes search-specific results if a filter is active.
+ */
   const generatePDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -227,6 +233,19 @@ function SuppliersDetails() {
 
     doc.save(`suppliers_report_${Date.now()}.pdf`);
   };
+
+  // Search supports all user-visible supplier fields
+  const filteredSuppliers = suppliers.filter((supplier) =>
+    (supplier.name || "").toLowerCase().includes(search.toLowerCase()) ||
+    (supplier.email || "").toLowerCase().includes(search.toLowerCase()) ||
+    (supplier.phone || "").toLowerCase().includes(search.toLowerCase()) ||
+    (supplier.address || "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Split lists by approval status (defensive defaults avoid undefined errors)
+  const approvedSuppliers = filteredSuppliers.filter(
+    (s) => (s.status || "Approved") === "Approved"
+  );
 
   return (
     <div>

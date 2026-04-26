@@ -6,30 +6,44 @@
   --gms-bg: #f8fafc;
   --gms-surface: #ffffff;
   --gms-border: #e2e8f0;
+  --gms-radius: 12px; /* Consistent with global.css */
+}
+
+/* Layout & Spacing Improvements */
+.pending-header-section {
+  margin-bottom: 48px !important; /* Increased spacing after title to match section-spacing in global.css */
+}
+
+.subtitle-text {
+  color: var(--gms-secondary);
+  margin-top: 12px;
+  font-size: 16px;
 }
 
 .tabs-container {
   display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 48px; /* Consistent spacing */
   border-bottom: 2px solid var(--gms-border);
   padding-bottom: 2px;
 }
 
 .tab-btn {
-  padding: 12px 24px;
+  padding: 14px 28px;
   border: none;
   background: none;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--gms-secondary);
   cursor: pointer;
   position: relative;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px 8px 0 0;
 }
 
 .tab-btn:hover {
   color: var(--gms-primary);
+  background-color: #f1f5f9;
 }
 
 .tab-btn.active {
@@ -50,10 +64,62 @@
 .tab-badge {
   background-color: #fee2e2;
   color: #ef4444;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 800;
   padding: 2px 8px;
   border-radius: 999px;
-  margin-left: 8px;
+  margin-left: 10px;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+}
+
+/* Table Styling Consistency */
+.tab-content {
+  background: var(--gms-surface);
+  border-radius: var(--gms-radius);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 1px solid var(--gms-border);
+}
+
+.suppliers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.suppliers-table thead th {
+  background-color: var(--gms-primary); /* Primary blue for header */
+  color: white;
+  text-align: left;
+  padding: 18px 24px;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.suppliers-table tbody td {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--gms-border);
+  color: #334155;
+  font-size: 15px;
+}
+
+.suppliers-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.suppliers-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Action Button Consistency Override for Table context */
+.btn-review {
+  height: 40px !important;
+  padding: 0 24px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
 }
 
 /* Modal Styles */
@@ -142,32 +208,35 @@
 
 .btn-approve-lg, .btn-reject-lg {
   flex: 1;
-  padding: 14px;
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: var(--gms-radius);
   border: none;
   font-weight: 700;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-approve-lg {
-  background-color: var(--gms-success);
+  background-color: var(--gms-primary); /* Use primary blue for approval */
   color: white;
 }
 
 .btn-approve-lg:hover {
-  background-color: #15803d;
+  background-color: #1d4ed8;
   transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
 }
 
 .btn-reject-lg {
-  background-color: #fee2e2;
-  color: var(--gms-danger);
-  border: 1px solid #fecaca;
+  background-color: #fff1f2;
+  color: #e11d48; /* Use danger color */
+  border: 1px solid #fecdd3;
 }
 
 .btn-reject-lg:hover {
-  background-color: #fecaca;
+  background-color: #ffe4e6;
+  color: #be123c;
 }
 
 .rejection-input-container {

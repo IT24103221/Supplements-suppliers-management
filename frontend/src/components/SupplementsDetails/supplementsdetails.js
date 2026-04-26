@@ -43,9 +43,11 @@ function SupplementsDetails() {
   const userRole = user?.role || localStorage.getItem("userRole");
   const isAdmin = userRole === "admin";
 
-  /**
-   * Fetches all approved supplements from the backend.
-   */
+/**
+ * DATA ACQUISITION LAYER:
+ * Asynchronously fetches the complete collection of approved supplements from the 
+ * Backend API. This data serves as the primary source for the store catalog.
+ */
   const fetchSupplements = async () => {
     try {
       const res = await axios.get(SUPPLEMENTS_URL);
@@ -77,6 +79,12 @@ function SupplementsDetails() {
     }
   };
 
+/**
+ * ADMINISTRATIVE RESTOCK NOTIFICATION:
+ * Facilitates communication between Admin and Suppliers. If a product is out of stock,
+ * the Admin can trigger a notification that is stored in the database and displayed 
+ * on the specific Supplier's dashboard.
+ */
   const handleNotify = async (supplement) => {
     // Try getting adminId from Context first, then localStorage
     const adminId = user?.id || user?._id || localStorage.getItem("adminId");
@@ -110,9 +118,12 @@ function SupplementsDetails() {
     }
   };
 
-  /**
-   * Generates a PDF report of all current supplements.
-   */
+/**
+ * ANALYTICAL REPORT GENERATION (PDF):
+ * Implements client-side PDF generation using 'jspdf' and 'jspdf-autotable'.
+ * Extracts current inventory data and formats it into a professional tabular 
+ * report including branding, timestamps, and key metrics for Admin review.
+ */
   const generateSupplementReport = () => {
     try {
       const doc = new jsPDF();
@@ -160,10 +171,12 @@ function SupplementsDetails() {
     }
   };
 
-  /**
-   * Filters supplements based on the search query.
-   * Matches against Name, Brand, and Category.
-   */
+/**
+ * SEARCH & FILTERING LOGIC:
+ * Implements a real-time search engine using 'useMemo' for performance optimization.
+ * It filters the supplement array based on multiple criteria (Name, Brand, Category) 
+ * without requiring additional API calls.
+ */
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return supplements;
@@ -177,10 +190,11 @@ function SupplementsDetails() {
     });
   }, [search, supplements]);
 
-  /**
-   * Groups the filtered supplements by their category.
-   * Returns an array of [category, items] pairs sorted by category name.
-   */
+/**
+ * DATA CATEGORIZATION:
+ * Organizes the flat supplement array into a grouped structure by category.
+ * This enhances UX by presenting products in logical sections rather than a single list.
+ */
   const grouped = useMemo(() => {
     const map = new Map();
     for (const s of filtered) {
@@ -268,6 +282,7 @@ function SupplementsDetails() {
                         </Link>
 
                         {/* Footer Section (Price & Actions) */}
+                        {/* --- INVENTORY STATUS INDICATORS (UX LOGIC) --- */}
                         <div className="store-card__footer">
                           <div className="store-card__info-row">
                             <div className="store-card__stock-info">
@@ -287,7 +302,7 @@ function SupplementsDetails() {
                           </div>
                           
                           <div className="store-card__actions">
-                            {/* --- Customer View --- */}
+                            {/* --- CONDITIONAL ACTION BUTTONS BASED ON USER ROLE --- */}
                             {userRole === 'user' && (
                               <div className="store-card__btn-grid">
                                 <button
@@ -306,7 +321,7 @@ function SupplementsDetails() {
                               </div>
                             )}
 
-                            {/* --- Admin & Supplier View --- */}
+                            {/* --- PERMISSION-BASED EDIT/DELETE (ADMIN OR PRODUCT OWNER) --- */}
                             {(isAdmin || (currentUserId && (s.supplierId === currentUserId || s.supplierId?._id === currentUserId))) && (
                               <div className="store-card__btn-grid">
                                 {isAdmin && (
@@ -332,6 +347,7 @@ function SupplementsDetails() {
                               </div>
                             )}
 
+                            {/* --- OUT-OF-STOCK NOTIFICATION (ADMIN ONLY) --- */}
                             {isAdmin && s.availableStock === 0 && (
                               <button
                                 type="button"
